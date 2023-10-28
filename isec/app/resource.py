@@ -52,7 +52,7 @@ class Resource:
         cls.set_volume()
 
     @classmethod
-    def _get_default_assets_directory(cls):
+    def _get_default_assets_directory(cls) -> None:
         if cls.default_assets_directory is not None:
             return
 

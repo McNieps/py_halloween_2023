@@ -30,11 +30,13 @@ class TilemapScene(Scene):
         return all(tile in self.tileset for row in self.tilemap for tile in row)
 
     @property
-    def inter_tile_distance(self):
+    def inter_tile_distance(self) -> int:
         return self._inter_tile_distance
 
     @inter_tile_distance.setter
-    def inter_tile_distance(self, value) -> None:
+    def inter_tile_distance(self,
+                            value: int) -> None:
+
         self._inter_tile_distance = value
         self.tile_size = self.tileset[0].get_size()[0] + self.inter_tile_distance
         if self.tile_size <= 0:
@@ -91,7 +93,8 @@ class TilemapScene(Scene):
 
         return tileset
 
-    def update(self, delta):
+    def update(self,
+               delta: float) -> None:
         pass
 
     @classmethod

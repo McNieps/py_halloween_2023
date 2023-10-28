@@ -14,15 +14,14 @@ class StaticPos(Pos):
     """
 
     def __init__(self,
-                 position: Iterable = None,
-                 **kwargs):
+                 position: Iterable = None) -> None:
 
         position = pygame.math.Vector2(*position) if position is not None else pygame.math.Vector2(0, 0)
 
         super().__init__(position=position)
 
     def update(self,
-               delta: float) -> None:
+               _delta: float) -> None:
         """
         Update position.
 
@@ -31,11 +30,11 @@ class StaticPos(Pos):
         return
 
     @property
-    def x(self):
+    def x(self) -> float:
         return self.position[0]
 
     @property
-    def y(self):
+    def y(self) -> float:
         return self.position[1]
 
 

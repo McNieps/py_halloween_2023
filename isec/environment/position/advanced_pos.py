@@ -68,9 +68,9 @@ class AdvancedPos(SimplePos):
         super().update(delta)  # Change position -> function of speed
 
     @property
-    def ax(self):
+    def ax(self) -> float:
         return self.acceleration[0]
 
     @property
-    def ay(self):
+    def ay(self) -> float:
         return self.acceleration[1]

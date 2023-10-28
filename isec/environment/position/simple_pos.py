@@ -15,10 +15,9 @@ class SimplePos(StaticPos):
 
     def __init__(self,
                  position: Iterable = None,
-                 speed: Iterable = None,
-                 **kwargs):
+                 speed: Iterable = None) -> None:
 
-        super().__init__(position, **kwargs)
+        super().__init__(position)
 
         if speed is not None:
             self.speed = pygame.math.Vector2(*speed)
@@ -36,11 +35,11 @@ class SimplePos(StaticPos):
         self.position += self.speed * delta
 
     @property
-    def vx(self):
+    def vx(self) -> float:
         return self.speed[0]
 
     @property
-    def vy(self):
+    def vy(self) -> float:
         return self.speed[1]
 
 

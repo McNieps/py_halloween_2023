@@ -75,5 +75,5 @@ class Button(Entity):
         await self.pressed_callback()
         return
 
-    async def _empty_callback(self):
+    async def _empty_callback(self) -> None:
         return

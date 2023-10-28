@@ -24,7 +24,7 @@ class EntityScene(Scene):
         self.space = pymunk.Space()
 
     def add_entities(self,
-                     *entities) -> None:
+                     *entities: Entity) -> None:
 
         self.entities.extend([entity for entity in entities
                               if entity not in self.entities])
@@ -36,7 +36,7 @@ class EntityScene(Scene):
                 self.space.add(*[shape for shape in entity.position.shapes if shape not in self.space.shapes])
 
     def remove_entities(self,
-                        *entities) -> None:
+                        *entities: Entity) -> None:
 
         for entity in entities:
             if entity not in self.entities:
@@ -45,14 +45,14 @@ class EntityScene(Scene):
             self.entities.remove(entity)
 
     def remove_entities_by_name(self,
-                                name) -> None:
+                                name: str) -> None:
 
         for entity in self.entities:
             if entity.__class__.__name__ == name:
                 self.remove_entities(entity)
 
     def update(self,
-               delta: float) -> None:
+               _delta: float) -> None:
 
         for entity in self.entities:
             entity.update(self.avg_delta)

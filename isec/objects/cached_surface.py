@@ -24,8 +24,10 @@ class CachedSurface(pygame.Surface):
 
         return round(angle % 360 / self._caching_step) % self._caching_size
 
-    def __getitem__(self, item):
+    def __getitem__(self,
+                    item: float) -> pygame.Surface:
+
         return self.surfaces[self._get_surface_index(item)]
 
-    def __repr__(self):
+    def __repr__(self) -> None:
         return f'CachedSurface with {len(self.surfaces)} surfaces.\n({self.surfaces})'

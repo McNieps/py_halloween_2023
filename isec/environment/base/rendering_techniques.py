@@ -1,6 +1,8 @@
 import pygame
 import typing
 
+from isec.environment.base import Sprite
+
 from collections.abc import Iterable
 
 
@@ -8,7 +10,7 @@ class RenderingTechniques:
     TYPING = typing.Literal["static", "rotated", "cached", "optimized_static"]
 
     @staticmethod
-    def optimized_static(self,
+    def optimized_static(self: Sprite,
                          destination: pygame.Surface,
                          destination_rect: pygame.Rect,
                          offset: Iterable,
@@ -27,7 +29,7 @@ class RenderingTechniques:
         destination.blit(self.surface, self.effective_rect, area, special_flags=self.blit_flag)
 
     @staticmethod
-    def static(self,
+    def static(self: Sprite,
                destination: pygame.Surface,
                destination_rect: pygame.Rect,
                offset: Iterable,
@@ -42,7 +44,7 @@ class RenderingTechniques:
         destination.blit(self.surface, self.effective_rect, special_flags=self.blit_flag)
 
     @staticmethod
-    def rotated(self,
+    def rotated(self: Sprite,
                 destination: pygame.Surface,
                 destination_rect: pygame.Rect,
                 offset: Iterable,
@@ -58,7 +60,7 @@ class RenderingTechniques:
         destination.blit(self.effective_surf, self.effective_rect, special_flags=self.blit_flag)
 
     @staticmethod
-    def cached(self,
+    def cached(self: Sprite,
                destination: pygame.Surface,
                destination_rect: pygame.Rect,
                offset: Iterable,

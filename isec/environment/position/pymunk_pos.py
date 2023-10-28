@@ -20,7 +20,7 @@ class PymunkPos(Pos):
     BASE_ELASTICITY = 0.75
 
     def __init__(self,
-                 body_type=TYPE_DYNAMIC,
+                 body_type: int = TYPE_DYNAMIC,
                  base_shape_density: float = None,
                  base_shape_friction: float = None,
                  base_shape_elasticity: float = None,
@@ -120,7 +120,7 @@ class PymunkPos(Pos):
         surface_bounding_box = pymunk.BB(0, 0, size[0]-1, size[1]-1)
         surface_array = pygame.surfarray.pixels3d(pygame.mask.from_surface(surface).to_surface())
 
-        def sample_function(_point):
+        def sample_function(_point: tuple[int, int]) -> bool:
             return surface_array[int(_point[0]), int(_point[1]), 0]
 
         # First decomposition
