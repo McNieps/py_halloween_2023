@@ -1,0 +1,18 @@
+line-length = 120
+src = ["ise_c"]
+ignore = ["S311", "C901", "ANN101", "ANN102"]
+select = ["E",   # pycodestyle
+          "F",   # pyflakes
+          "UP",  # pyupgrade
+          "C90", # mccabe (complex names)
+          "N",   # pep-8 naming
+          "ANN", # annotations
+          "S",   # bandit
+          "B",   # bugbear
+          "A",   # builtin
+          "COM", # Commas
+          "C4",  # list comprehension
+          "RET", # return
+          "SIM", # simplify
+          "ARG", # unused arguments
+]
