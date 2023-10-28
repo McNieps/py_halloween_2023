@@ -1,0 +1,16 @@
+{
+  "arrow": {
+    "cached": true,
+    "cache_size": 9000
+  },
+
+  "illapsum_splash": {
+      "cached": true,
+      "cache_size": 720
+  },
+
+  "face": {
+    "cached": true,
+    "cache_size": 16
+  }
+}
