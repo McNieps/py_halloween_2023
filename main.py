@@ -6,14 +6,14 @@ import math
 import time
 
 from isec.app import App, Resource
-from game.instances.menu import Menu
+from game.instances.game import Game
 
-__all__ = [asyncio, numpy, pymunk, pygame, math, time, App, Resource, Menu]
+__all__ = [asyncio, numpy, pymunk, pygame, math, time, App, Resource]
 
 
 async def main() -> None:
     App.init("game/assets/")
-    await Menu().execute()
+    await Game().execute()
 
 
 asyncio.run(main())

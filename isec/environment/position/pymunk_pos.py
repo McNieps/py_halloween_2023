@@ -84,13 +84,13 @@ class PymunkPos(Pos):
             shape.collision_type = self.collision_type
 
     def create_rect_shape(self,
-                          surface: pygame.Surface,
+                          rect: pygame.Rect,
                           radius: float = -1,
                           density: float = None,
                           friction: float = None,
                           elasticity: float = None) -> pymunk.Shape:
 
-        shape = pymunk.Poly.create_box(self.body, surface.get_size(), radius=radius)
+        shape = pymunk.Poly.create_box(self.body, rect.size, radius=radius)
         self.set_shape_characteristics(shape, density, friction, elasticity)
         self.shapes.append(shape)
 
@@ -105,6 +105,7 @@ class PymunkPos(Pos):
         shape = pymunk.Circle(self.body, radius)
         self.set_shape_characteristics(shape, density, friction, elasticity)
         self.shapes.append(shape)
+        return shape
 
     def create_surface_shape(self,
                              surface: pygame.Surface,
@@ -120,7 +121,7 @@ class PymunkPos(Pos):
         surface_bounding_box = pymunk.BB(0, 0, size[0]-1, size[1]-1)
         surface_array = pygame.surfarray.pixels3d(pygame.mask.from_surface(surface).to_surface())
 
-        def sample_function(_point: tuple[int, int]) -> bool:
+        def sample_function(_point: tuple[float, float]) -> bool:
             return surface_array[int(_point[0]), int(_point[1]), 0]
 
         # First decomposition
