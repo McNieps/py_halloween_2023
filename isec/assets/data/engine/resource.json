@@ -7,14 +7,13 @@
   },
 
   "sound": {
+    "master_volume": 0.2,
+    "max_simultaneous_sounds": 64,
+
     "frequency": 44100,
     "size": -16,
     "channels": 2,
     "buffer": 512,
-    "devicename": null,
-
-    "max_simultaneous_sounds": 64,
-
-    "default_volume": 0.2
+    "devicename": null
   }
 }

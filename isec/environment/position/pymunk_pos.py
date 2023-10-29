@@ -15,7 +15,7 @@ class PymunkPos(Pos):
     TYPE_KINEMATIC = pymunk.Body.KINEMATIC
     TYPE_STATIC = pymunk.Body.STATIC
 
-    BASE_DENSITY = 10
+    BASE_DENSITY = 0
     BASE_FRICTION = 1.5
     BASE_ELASTICITY = 0.75
 
@@ -82,6 +82,15 @@ class PymunkPos(Pos):
 
         if self.collision_type is not None:
             shape.collision_type = self.collision_type
+
+    def add_shape(self,
+                  shape: pymunk.Shape,
+                  density: float = None,
+                  friction: float = None,
+                  elasticity: float = None) -> None:
+
+        self.set_shape_characteristics(shape, density, friction, elasticity)
+        self.shapes.append(shape)
 
     def create_rect_shape(self,
                           rect: pygame.Rect,
@@ -160,8 +169,9 @@ class PymunkPos(Pos):
         return shapes
 
     @property
-    def position(self) -> tuple[float, float]:
-        return int(self.body.position.x), int(self.body.position.y)
+    def position(self) -> pygame.Vector2:
+        return pygame.Vector2(self.body.position.x, self.body.position.y)
+        # return int(self.body.position.x), int(self.body.position.y)
 
     @position.setter
     def position(self, position: tuple[float, float]) -> None:
@@ -214,7 +224,3 @@ class PymunkPos(Pos):
     @a_damping.setter
     def a_damping(self, a_damping: float) -> None:
         self.body.angular_damping = a_damping
-
-
-if __name__ == '__main__':
-    x = PymunkPos(body_type=PymunkPos.TYPE_KINEMATIC)

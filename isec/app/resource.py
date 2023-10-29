@@ -146,7 +146,10 @@ class Resource:
                     current_image_dict[key_name] = pygame.image.load(assets_path + elem.name).convert_alpha()
 
                 else:
-                    raise InvalidFileFormatError(f"{elem.name.split('.')[-1]} is not a supported image file format")
+                    err_msg = (f"File {elem.name} is not valid. "
+                               f"{elem.name.split('.')[-1]} is not a supported image file format")
+
+                    raise InvalidFileFormatError(err_msg)
 
     @classmethod
     def _load_sound(cls,

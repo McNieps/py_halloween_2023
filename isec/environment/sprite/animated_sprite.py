@@ -6,7 +6,7 @@ from isec.environment.base import Sprite, RenderingTechniques
 class AnimatedSprite(Sprite):
     def __init__(self,
                  surfaces: list[pygame.Surface],
-                 frame_durations: list[float],
+                 frames_duration: list[float],
                  loop: bool = True,
                  rendering_technique: RenderingTechniques.TYPING = "static",
                  blit_flag: int = 0) -> None:
@@ -14,18 +14,18 @@ class AnimatedSprite(Sprite):
         if len(surfaces) == 0:
             raise ValueError("Length of surfaces must be greater than 0.")
 
-        if len(surfaces) != len(frame_durations):
-            raise ValueError("Length of surfaces and frame_durations must be equal.")
+        if len(surfaces) != len(frames_duration):
+            raise ValueError("Length of surfaces and frames_duration must be equal.")
 
-        if not all(isinstance(duration, (int | float)) for duration in frame_durations):
-            raise ValueError("All frame_durations must be int or float.")
+        if not all(isinstance(duration, (int | float)) for duration in frames_duration):
+            raise ValueError("All frames_duration must be int or float.")
 
         super().__init__(surface=surfaces[0],
                          rendering_technique=rendering_technique,
                          blit_flag=blit_flag)
 
         self.surfaces: list[pygame.Surface] = surfaces
-        self.frame_durations: list[float] = frame_durations
+        self.frames_duration: list[float] = frames_duration
         self.loop: bool = loop
 
         self._current_frame: int = 0
@@ -36,8 +36,8 @@ class AnimatedSprite(Sprite):
 
         self._current_duration += delta
 
-        if self._current_duration >= self.frame_durations[self._current_frame]:
-            self._current_duration -= self.frame_durations[self._current_frame]
+        if self._current_duration >= self.frames_duration[self._current_frame]:
+            self._current_duration -= self.frames_duration[self._current_frame]
             self._current_frame += 1
 
             if self._current_frame >= len(self.surfaces):
@@ -46,7 +46,7 @@ class AnimatedSprite(Sprite):
                 else:
                     self._current_frame = len(self.surfaces) - 1
 
-            while self.frame_durations[self._current_frame] == 0:
+            while self.frames_duration[self._current_frame] == 0:
                 self._current_frame += 1
                 if self._current_frame >= len(self.surfaces):
                     if self.loop:
