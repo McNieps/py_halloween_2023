@@ -1,19 +1,33 @@
 import pygame
 
+from typing import TYPE_CHECKING
 from collections.abc import Iterable
 
+from isec.instance import BaseInstance
 from isec.environment.base.pos import Pos
 from isec.environment.base.sprite import Sprite
+
+
+if TYPE_CHECKING:
+    from isec.environment.base import Scene
 
 
 class Entity:
     def __init__(self,
                  position: Pos,
-                 sprite: Sprite) -> None:
+                 sprite: Sprite,
+                 linked_scene: "Scene",
+                 linked_instance: BaseInstance) -> None:
+
+        # Metadata
+        self.linked_scene = linked_scene
+        self.linked_instance = linked_instance
 
         self.to_delete: bool = False
         self.position: Pos = position
         self.sprite: Sprite = sprite
+
+        self.linked_scene.add_entities(self)
 
     def update(self,
                delta: float) -> None:
@@ -29,3 +43,8 @@ class Entity:
         """Render elements of this container."""
 
         self.sprite.render(surface, rect, camera_offset, self.position.a)
+
+    def destroy(self) -> None:
+        """Destroy the entity."""
+
+        self.to_delete = True

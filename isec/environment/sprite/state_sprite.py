@@ -39,9 +39,17 @@ class StateSprite(AnimatedSprite):
         self.frames_duration = self.states[state_name]["frames_duration"]
         self.loop = self.states[state_name]["loop"]
 
+    def flip(self,
+             flip_x: bool = True,
+             flip_y: bool = False) -> None:
+
+        for i, surface in enumerate(self.surfaces):
+            self.surfaces[i] = pygame.transform.flip(surface, flip_x, flip_y)
+
     @classmethod
     def create_from_directory(cls,
-                              directory_path: str) -> Self:
+                              directory_path: str,
+                              rendering_technique: RenderingTechniques.TYPING = "static") -> Self:
 
         keys = directory_path.replace("\\", "/").rstrip("/").split("/")
 
@@ -71,4 +79,4 @@ class StateSprite(AnimatedSprite):
                 states[state]["frames_duration"][i] = frame["duration"]
                 i += 1
 
-        return cls(surfaces, states)
+        return cls(surfaces, states, rendering_technique=rendering_technique)

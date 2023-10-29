@@ -7,7 +7,7 @@ import pymunk
 from pymunk.autogeometry import march_soft, march_hard
 from collections.abc import Iterable, Sequence
 
-from isec.environment.base import Pos
+from isec.environment.base import Pos, Entity
 
 
 class PymunkPos(Pos):
@@ -29,6 +29,9 @@ class PymunkPos(Pos):
                  speed: Iterable = None,
                  a: float = 0,
                  va: float = 0) -> None:
+
+        # Metadata
+        self.linked_entity: Entity | None = None
 
         if base_shape_density is None:
             base_shape_density = self.BASE_DENSITY
@@ -56,40 +59,49 @@ class PymunkPos(Pos):
                delta: float) -> None:
         pass
 
+    def link_entity(self,
+                    entity: Entity) -> None:
+        """Link an entity to this position."""
+
+        self.linked_entity = entity
+
     def set_shape_characteristics(self,
                                   shape: pymunk.Shape,
                                   density: float = None,
                                   friction: float = None,
-                                  elasticity: float = None) -> None:
+                                  elasticity: float = None,
+                                  collision_type: int = None) -> None:
+        """Set the characteristics of a shape."""
 
-        if density is not None:
-            shape.density = density
-
-        elif shape.density == 0:
+        if density is None:
             shape.density = self.base_shape_density
 
-        if friction is not None:
-            shape.friction = friction
+        else:
+            shape.density = density
 
-        elif shape.friction == 0:
+        if friction is None:
             shape.friction = self.base_shape_friction
 
-        if elasticity is not None:
-            shape.elasticity = elasticity
+        else:
+            shape.friction = friction
 
-        elif shape.elasticity == 0:
+        if elasticity is None:
             shape.elasticity = self.base_shape_elasticity
 
-        if self.collision_type is not None:
-            shape.collision_type = self.collision_type
+        else:
+            shape.elasticity = elasticity
+
+        if collision_type is not None:
+            shape.collision_type = collision_type
 
     def add_shape(self,
                   shape: pymunk.Shape,
                   density: float = None,
                   friction: float = None,
-                  elasticity: float = None) -> None:
+                  elasticity: float = None,
+                  collision_type: int = None) -> None:
 
-        self.set_shape_characteristics(shape, density, friction, elasticity)
+        self.set_shape_characteristics(shape, density, friction, elasticity, collision_type)
         self.shapes.append(shape)
 
     def create_rect_shape(self,

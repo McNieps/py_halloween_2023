@@ -4,4 +4,4 @@ from isec.environment.position.advanced_pos import AdvancedPos
 from isec.environment.position.pymunk_pos import PymunkPos
 
 
-__all__ = [StaticPos, SimplePos, AdvancedPos, PymunkPos]
+__all__ = ["StaticPos", "SimplePos", "AdvancedPos", "PymunkPos"]

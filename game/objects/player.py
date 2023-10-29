@@ -1,23 +1,27 @@
-import pymunk
+import math
 import pygame
+import pymunk
 
 from isec.instance.base_instance import BaseInstance
-from isec.environment.scene import EntityScene, ComposedScene
-from isec.environment.base import Entity
-from isec.environment.sprite import StateSprite, PymunkSprite
+from isec.environment.base import Entity, Scene
+from isec.environment.sprite import StateSprite, PymunkSprite  # NOQA Can be used for debugging
 from isec.environment.position import PymunkPos
 
 from game.objects.collision_types import CollisionTypes
 from game.objects.controls import Controls
+from game.objects.pellet import Pellet
 
 
 class Player(Entity):
-    HORIZONTAL_FORCE = 50000
-    JUMP_IMPULSE = 30000
+    WALK_FORCE = 75000
+    AIRCONTROL_FORCE = WALK_FORCE / 3
+    JUMP_IMPULSE = 25000
+    JUMP_MAINTAIN_FORCE = 25000
     MASS = 100
 
     def __init__(self,
                  position: tuple[float, float],
+                 linked_scene: Scene,
                  linked_instance: BaseInstance) -> None:
         """
         Create a player object.
@@ -27,41 +31,87 @@ class Player(Entity):
 
         # Metadata
         self.linked_instance = linked_instance
+        self.linked_scene = linked_scene
 
         # Controls related
-        self.user_events = self.reset_user_inputs()
-        self.collision_events = self.reset_collision_events()
+        self.user_events = self._reset_user_inputs()
+        self.collision_status = self._reset_collision_status()
+        self._add_control_callbacks()
 
         # Position related
         player_position = self._create_body(position)
+        self._create_body_arbiters()
 
         # Sprite related
-        # player_sprite = StateSprite.create_from_directory("game/player_anim")
-        player_sprite = PymunkSprite(player_position, "rotated")
-        self.add_control_callbacks()
+        player_sprite = StateSprite.create_from_directory("game/player_anim")
+        player_sprite.switch_state("idle")
+        self.last_direction = 1
+        # player_sprite = PymunkSprite(player_position, "rotated")
 
         super().__init__(position=player_position,
-                         sprite=player_sprite)
+                         sprite=player_sprite,
+                         linked_scene=linked_scene,
+                         linked_instance=linked_instance)
 
     def update(self,
                delta: float) -> None:
         """Update the player."""
 
-        self.handle_user_inputs()
-        self.reset_user_inputs()
-        self.reset_collision_events()
+        self.handle_user_inputs(delta)
+        self.sprite.update(delta)
 
-    def handle_user_inputs(self) -> None:
+        self._reset_user_inputs()
+        self._reset_collision_status()
+
+    def handle_user_inputs(self,
+                           _delta: float) -> None:
         """Handle user inputs. Must be called in the update method."""
 
+        new_direction = self.last_direction
+
         if self.user_events["KEYPRESSED_LEFT"]:
-            self.position.body.apply_force_at_local_point((-self.HORIZONTAL_FORCE, 0))
+            new_direction = -1
+            if self.collision_status["FLOORED"]:
+                self.position.body.apply_force_at_local_point((-self.WALK_FORCE, 0))
+
+            else:
+                self.position.body.apply_force_at_local_point((-self.AIRCONTROL_FORCE, 0))
+
         if self.user_events["KEYPRESSED_RIGHT"]:
-            self.position.body.apply_force_at_local_point((self.HORIZONTAL_FORCE, 0))
+            new_direction = 1
+            if self.collision_status["FLOORED"]:
+                self.position.body.apply_force_at_local_point((self.WALK_FORCE, 0))
+
+            else:
+                self.position.body.apply_force_at_local_point((self.AIRCONTROL_FORCE, 0))
+
+        if all((self.user_events["KEYPRESSED_JUMP"],
+                not self.collision_status["FLOORED"],
+                self.position.body.velocity.y < 0)):
+            self.position.body.apply_force_at_local_point((0, -self.JUMP_MAINTAIN_FORCE))
+
         if self.user_events["KEYDOWN_JUMP"]:
             self.position.body.apply_impulse_at_local_point((0, -self.JUMP_IMPULSE))
 
-    def reset_user_inputs(self) -> dict[str: bool]:
+        if new_direction != self.last_direction:
+            self.sprite.flip()  # NOQA
+            self.last_direction = new_direction
+
+        if self.user_events["BUTTONDOWN_SHOOT"]:
+            self.shoot()
+
+    def shoot(self) -> None:
+        """Shoot a pellet."""
+
+        direction = math.degrees(math.atan2(*[pygame.mouse.get_pos()[i] - (200, 150)[i] for i in range(2)]))
+        position = (self.position.position[0], self.position.position[1])
+
+        Pellet.shot_pellets(initial_position=position,
+                            direction=direction,
+                            linked_scene=self.linked_scene,
+                            linked_instance=self.linked_instance)
+
+    def _reset_user_inputs(self) -> dict[str: bool]:
         """Reset user inputs to False."""
 
         self.user_events = {"KEYDOWN_UP": False,
@@ -72,49 +122,55 @@ class Player(Entity):
                             "KEYPRESSED_LEFT": False,
                             "KEYPRESSED_RIGHT": False,
                             "KEYPRESSED_JUMP": False,
-                            "BUTTONPRESSED_SHOOT": False,
-                            "BUTTONPRESSED_ROPE": False}
+                            "BUTTONDOWN_SHOOT": False,
+                            "BUTTONDOWN_ROPE": False,
+                            "BUTTONUP_ROPE": False}
         return self.user_events
 
-    def reset_collision_events(self) -> dict[str: bool]:
+    def _reset_collision_status(self) -> dict[str: bool]:
         """Reset collision events to False."""
 
-        self.collision_events = {"left_wall_touch": False,
-                                 "right_wall_touch": False,
-                                 "feet_touch_floor": False}
+        self.collision_status = {"CONTACT_LEFT": False,
+                                 "CONTACT_RIGHT": False,
+                                 "FLOORED": False}
 
-        return self.collision_events
+        return self.collision_status
 
-    def add_control_callbacks(self) -> None:
+    def _add_control_callbacks(self) -> None:
         """Add all control callbacks to the instance's event_handler."""
 
         for cb_str in self.user_events:
-            self._create_cb(self.linked_instance, cb_str)
+            self._create_input_cb(self.linked_instance, cb_str)
 
-    def _create_body(self, position: tuple[float, float]) -> PymunkPos:
+    def _create_body(self,
+                     position: tuple[float, float]) -> PymunkPos:
         """Create the player's body."""
 
         player_position = PymunkPos(position=position,
                                     shape_collision_type=CollisionTypes.PLAYER,
                                     base_shape_density=None,
                                     base_shape_elasticity=0,
-                                    base_shape_friction=0)
+                                    base_shape_friction=0.5)
 
-        feet_bb = pymunk.BB(top=6, bottom=8, left=-4, right=4)
-        left_hand_bb = pymunk.BB(top=-4, bottom=4, left=-5, right=-3)
-        right_hand_bb = pymunk.BB(top=-4, bottom=4, left=3, right=5)
+        self.skeleton = pymunk.Segment(player_position.body, (0, -6), (0, 3), 0)
+        self.feet = pymunk.Circle(player_position.body, 2, offset=(0, 3))
+        self.left_hand = pymunk.Segment(player_position.body, (-2, -4), (-2, -4), 0)
+        self.right_hand = pymunk.Segment(player_position.body, (2, -4), (2, -4), 0)
 
-        self.skeleton = player_position.create_rect_shape(pygame.Rect(-4, -8, 8, 16))
-        self.feet = pymunk.Poly.create_box_bb(player_position.body, feet_bb)
-        self.left_hand = pymunk.Poly.create_box_bb(player_position.body, left_hand_bb)
-        self.right_hand = pymunk.Poly.create_box_bb(player_position.body, right_hand_bb)
+        player_position.add_shape(self.skeleton,
+                                  collision_type=CollisionTypes.PLAYER)
 
-        player_position.add_shape(self.feet, None, 0, 0)
-        player_position.add_shape(self.left_hand, None, 0, 0)
-        player_position.add_shape(self.right_hand, None, 0, 0)
+        player_position.add_shape(self.feet,
+                                  collision_type=CollisionTypes.PLAYER_FEET)
+
+        player_position.add_shape(self.left_hand,
+                                  collision_type=CollisionTypes.PLAYER_LEFT)
+
+        player_position.add_shape(self.right_hand,
+                                  collision_type=CollisionTypes.PLAYER_RIGHT)
 
         self.skeleton.sensor = False
-        self.feet.sensor = False   # !!!! Set to False
+        self.feet.sensor = True
         self.left_hand.sensor = True
         self.right_hand.sensor = True
 
@@ -129,11 +185,53 @@ class Player(Entity):
         return player_position
 
     def _create_body_arbiters(self):
-        pass
+        scene_space = self.linked_scene.space  # NOQA
 
-    def _create_cb(self,
-                   linked_instance: BaseInstance,
-                   cb_str: str) -> None:
+        t = scene_space.add_collision_handler(CollisionTypes.PLAYER_FEET,
+                                              CollisionTypes.TERRAIN)
+
+        def pre_solve(arbiter: pymunk.Arbiter,
+                      _space: pymunk.Space,
+                      _data: dict) -> bool:
+
+            for shape in arbiter.shapes:
+                if shape.body == self.position.body:
+                    self.collision_status["FLOORED"] = True
+            return True
+
+        t.pre_solve = pre_solve
+
+        t = scene_space.add_collision_handler(CollisionTypes.PLAYER_LEFT,
+                                              CollisionTypes.TERRAIN)
+
+        def pre_solve(arbiter: pymunk.Arbiter,
+                      _space: pymunk.Space,
+                      _data: dict) -> bool:
+
+            for shape in arbiter.shapes:
+                if shape.body == self.position.body:
+                    self.collision_status["CONTACT_LEFT"] = True
+            return True
+
+        t.pre_solve = pre_solve
+
+        t = scene_space.add_collision_handler(CollisionTypes.PLAYER_RIGHT,
+                                              CollisionTypes.TERRAIN)
+
+        def pre_solve(arbiter: pymunk.Arbiter,
+                      _space: pymunk.Space,
+                      _data: dict) -> bool:
+
+            for shape in arbiter.shapes:
+                if shape.body == self.position.body:
+                    self.collision_status["CONTACT_RIGHT"] = True
+            return True
+
+        t.pre_solve = pre_solve
+
+    def _create_input_cb(self,
+                         linked_instance: BaseInstance,
+                         cb_str: str) -> None:
         """Create a callback and add it to the instance's event_handler. Must not be called directly."""
 
         cb_dict = {"KEYDOWN": linked_instance.event_handler.register_keydown_callback,
