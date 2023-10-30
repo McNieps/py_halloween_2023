@@ -3,11 +3,12 @@ import pygame
 import pymunk
 
 from isec.instance.base_instance import BaseInstance
-from isec.environment.base import Entity, Scene
+from isec.environment.base import Entity
+from isec.environment.scene import ComposedScene
 from isec.environment.sprite import StateSprite, PymunkSprite  # NOQA Can be used for debugging
 from isec.environment.position import PymunkPos
 
-from game.objects.collision_types import CollisionTypes
+from game.objects.shape_info import PlayerSkeletonSI, PlayerFeetSI, PlayerLeftSI, PlayerRightSI, TerrainSI
 from game.objects.controls import Controls
 from game.objects.pellet import Pellet
 
@@ -20,8 +21,8 @@ class Player(Entity):
     MASS = 100
 
     def __init__(self,
-                 position: tuple[float, float],
-                 linked_scene: Scene,
+                 position: pygame.Vector2,
+                 linked_scene: ComposedScene,
                  linked_instance: BaseInstance) -> None:
         """
         Create a player object.
@@ -103,13 +104,20 @@ class Player(Entity):
     def shoot(self) -> None:
         """Shoot a pellet."""
 
-        direction = math.degrees(math.atan2(*[pygame.mouse.get_pos()[i] - (200, 150)[i] for i in range(2)]))
-        position = (self.position.position[0], self.position.position[1])
+        cursor_vec = [pygame.mouse.get_pos()[i] - (200, 150)[i] for i in range(2)]
 
-        Pellet.shot_pellets(initial_position=position,
-                            direction=direction,
+        # Shoot
+        pellet_direction = 90 - math.degrees(math.atan2(*cursor_vec))
+        pellet_position = (self.position.position[0], self.position.position[1])
+
+        Pellet.shot_pellets(initial_position=pellet_position,
+                            direction=pellet_direction,
                             linked_scene=self.linked_scene,
                             linked_instance=self.linked_instance)
+
+        # Propel player
+        impulse_vec = (-cursor_vec[0]*200, -cursor_vec[1]*200)
+        self.position.body.apply_impulse_at_local_point(impulse_vec)
 
     def _reset_user_inputs(self) -> dict[str: bool]:
         """Reset user inputs to False."""
@@ -143,52 +151,33 @@ class Player(Entity):
             self._create_input_cb(self.linked_instance, cb_str)
 
     def _create_body(self,
-                     position: tuple[float, float]) -> PymunkPos:
+                     position: pygame.Vector2) -> PymunkPos:
         """Create the player's body."""
 
-        player_position = PymunkPos(position=position,
-                                    shape_collision_type=CollisionTypes.PLAYER,
-                                    base_shape_density=None,
-                                    base_shape_elasticity=0,
-                                    base_shape_friction=0.5)
+        player_position = PymunkPos(space=self.linked_scene.space,
+                                    body_type="DYNAMIC",
+                                    default_shape_info=PlayerSkeletonSI,
+                                    position=position)
 
         self.skeleton = pymunk.Segment(player_position.body, (0, -6), (0, 3), 0)
         self.feet = pymunk.Circle(player_position.body, 2, offset=(0, 3))
         self.left_hand = pymunk.Segment(player_position.body, (-2, -4), (-2, -4), 0)
         self.right_hand = pymunk.Segment(player_position.body, (2, -4), (2, -4), 0)
 
-        player_position.add_shape(self.skeleton,
-                                  collision_type=CollisionTypes.PLAYER)
+        player_position.add_shape(shape=self.skeleton, shape_info=PlayerSkeletonSI)
+        player_position.add_shape(shape=self.feet, shape_info=PlayerFeetSI)
+        player_position.add_shape(shape=self.left_hand, shape_info=PlayerLeftSI)
+        player_position.add_shape(shape=self.right_hand, shape_info=PlayerRightSI)
 
-        player_position.add_shape(self.feet,
-                                  collision_type=CollisionTypes.PLAYER_FEET)
-
-        player_position.add_shape(self.left_hand,
-                                  collision_type=CollisionTypes.PLAYER_LEFT)
-
-        player_position.add_shape(self.right_hand,
-                                  collision_type=CollisionTypes.PLAYER_RIGHT)
-
-        self.skeleton.sensor = False
-        self.feet.sensor = True
-        self.left_hand.sensor = True
-        self.right_hand.sensor = True
-
-        self.skeleton.id = "skeleton"
-        self.feet.id = "feet"
-        self.left_hand.id = "left_hand"
-        self.right_hand.id = "right_hand"
-
-        player_position.body.mass = self.MASS
         player_position.body.moment = float('inf')   # Block rotation
 
         return player_position
 
     def _create_body_arbiters(self):
-        scene_space = self.linked_scene.space  # NOQA
+        scene_space = self.linked_scene.space
 
-        t = scene_space.add_collision_handler(CollisionTypes.PLAYER_FEET,
-                                              CollisionTypes.TERRAIN)
+        t = scene_space.add_collision_handler(PlayerFeetSI.collision_type,
+                                              TerrainSI.collision_type)
 
         def pre_solve(arbiter: pymunk.Arbiter,
                       _space: pymunk.Space,
@@ -201,8 +190,8 @@ class Player(Entity):
 
         t.pre_solve = pre_solve
 
-        t = scene_space.add_collision_handler(CollisionTypes.PLAYER_LEFT,
-                                              CollisionTypes.TERRAIN)
+        t = scene_space.add_collision_handler(PlayerLeftSI.collision_type,
+                                              TerrainSI.collision_type)
 
         def pre_solve(arbiter: pymunk.Arbiter,
                       _space: pymunk.Space,
@@ -215,8 +204,8 @@ class Player(Entity):
 
         t.pre_solve = pre_solve
 
-        t = scene_space.add_collision_handler(CollisionTypes.PLAYER_RIGHT,
-                                              CollisionTypes.TERRAIN)
+        t = scene_space.add_collision_handler(PlayerRightSI.collision_type,
+                                              TerrainSI.collision_type)
 
         def pre_solve(arbiter: pymunk.Arbiter,
                       _space: pymunk.Space,

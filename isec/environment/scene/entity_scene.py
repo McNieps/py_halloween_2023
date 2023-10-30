@@ -4,7 +4,6 @@ import pymunk
 from isec.environment.base.scene import Scene
 from isec.environment.base.entity import Entity
 from isec.environment.base.camera import Camera
-from isec.environment.position.pymunk_pos import PymunkPos
 
 
 class EntityScene(Scene):
@@ -21,7 +20,7 @@ class EntityScene(Scene):
         self.entities = entities
 
         self.avg_delta = 1 / fps
-        self.space = pymunk.Space()
+        self._space = pymunk.Space()
 
     def add_entities(self,
                      *entities: Entity) -> None:
@@ -29,11 +28,13 @@ class EntityScene(Scene):
         self.entities.extend([entity for entity in entities
                               if entity not in self.entities])
 
+        """
         for entity in entities:
             if isinstance(entity.position, PymunkPos):
                 if entity.position.body not in self.space.bodies:
                     self.space.add(entity.position.body)
-                self.space.add(*[shape for shape in entity.position.shapes if shape not in self.space.shapes])
+                self.space.add(*entity.position.body.shapes)
+        """
 
     def remove_entities(self,
                         *entities: Entity) -> None:
@@ -71,3 +72,7 @@ class EntityScene(Scene):
 
         for entity in self.entities:
             entity.render(camera.get_offset_pos(entity.position), self.surface, self.rect)
+
+    @property
+    def space(self) -> pymunk.Space:
+        return self._space

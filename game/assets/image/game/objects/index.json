@@ -2,5 +2,10 @@
   "pellet": {
     "cached": true,
     "cache_size": 90
+  },
+
+  "rope": {
+    "cached": true,
+    "cache_size": 90
   }
 }

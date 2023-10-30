@@ -1,149 +1,129 @@
 import math
-import typing
-
 import pygame
 import pymunk
 
+from typing import Literal, Type
 from pymunk.autogeometry import march_soft, march_hard
 from collections.abc import Iterable, Sequence
 
-from isec.environment.base import Pos, Entity
+from isec.environment.base import Pos
+
+
+class PymunkShapeInfo:
+    collision_type: int
+    collision_category: int
+    collision_mask: int
+    shape_filter: pymunk.ShapeFilter
+
+    elasticity: float
+    friction: float
+    density: float
+    sensor: bool
+
+    @classmethod
+    def configure_shape(cls,
+                        shape: pymunk.Shape) -> None:
+
+        shape.collision_type = cls.collision_type
+        shape.filter = cls.shape_filter
+        shape.elasticity = cls.elasticity
+        shape.friction = cls.friction
+        shape.density = cls.density
+        shape.sensor = cls.sensor
+
+
+class BaseShapeInfo(PymunkShapeInfo):
+    collision_type: int = 0
+    collision_category: int = 0b_0
+    collision_mask: int = 0b_0
+    shape_filter: pymunk.ShapeFilter = pymunk.ShapeFilter(group=collision_type,
+                                                          categories=collision_category,
+                                                          mask=collision_mask)
+
+    elasticity: float = 0.5
+    friction: float = 0.5
+    density: float = 0.5
+    sensor: bool = False
 
 
 class PymunkPos(Pos):
-    TYPE_DYNAMIC = pymunk.Body.DYNAMIC
-    TYPE_KINEMATIC = pymunk.Body.KINEMATIC
-    TYPE_STATIC = pymunk.Body.STATIC
-
-    BASE_DENSITY = 0
-    BASE_FRICTION = 1.5
-    BASE_ELASTICITY = 0.75
+    _body_type_dict: dict = {"DYNAMIC": pymunk.Body.DYNAMIC,
+                             "KINEMATIC": pymunk.Body.KINEMATIC,
+                             "STATIC": pymunk.Body.STATIC}
 
     def __init__(self,
-                 body_type: int = TYPE_DYNAMIC,
-                 base_shape_density: float = None,
-                 base_shape_friction: float = None,
-                 base_shape_elasticity: float = None,
-                 shape_collision_type: int = None,
-                 position: Iterable = None,
-                 speed: Iterable = None,
-                 a: float = 0,
-                 va: float = 0) -> None:
+                 space: pymunk.Space,
+                 body_type: Literal["DYNAMIC", "KINEMATIC", "STATIC"] = "DYNAMIC",
+                 default_shape_info: Type[PymunkShapeInfo] = None,
+                 position: Iterable = None) -> None:
 
-        # Metadata
-        self.linked_entity: Entity | None = None
+        if position is None:
+            position = pygame.Vector2(0, 0)
 
-        if base_shape_density is None:
-            base_shape_density = self.BASE_DENSITY
-        if base_shape_friction is None:
-            base_shape_friction = self.BASE_FRICTION
-        if base_shape_elasticity is None:
-            base_shape_elasticity = self.BASE_ELASTICITY
+        self.space = space
+        self.shape_info = default_shape_info
+        self.body = pymunk.Body(self._body_type_dict[body_type])
 
-        self.base_shape_density: float = base_shape_density
-        self.base_shape_friction: float = base_shape_friction
-        self.base_shape_elasticity: float = base_shape_elasticity
-        self.collision_type: int = shape_collision_type
+        self.space.add(self.body)
 
-        body: pymunk.Body = pymunk.Body(0, 0, body_type=body_type)
-        shapes: list[pymunk.Shape] = []
+        self.position = position
 
-        super().__init__(position=position,
-                         speed=speed,
-                         a=a,
-                         va=va,
-                         body=body,
-                         shapes=shapes)
+    def configure_shape(self,
+                        shape: pymunk.Shape,
+                        shape_info: Type[PymunkShapeInfo] = None) -> pymunk.Shape:
 
-    def update(self,
-               delta: float) -> None:
-        pass
+        if shape_info is None:
+            shape_info = self.shape_info
 
-    def link_entity(self,
-                    entity: Entity) -> None:
-        """Link an entity to this position."""
-
-        self.linked_entity = entity
-
-    def set_shape_characteristics(self,
-                                  shape: pymunk.Shape,
-                                  density: float = None,
-                                  friction: float = None,
-                                  elasticity: float = None,
-                                  collision_type: int = None) -> None:
-        """Set the characteristics of a shape."""
-
-        if density is None:
-            shape.density = self.base_shape_density
-
-        else:
-            shape.density = density
-
-        if friction is None:
-            shape.friction = self.base_shape_friction
-
-        else:
-            shape.friction = friction
-
-        if elasticity is None:
-            shape.elasticity = self.base_shape_elasticity
-
-        else:
-            shape.elasticity = elasticity
-
-        if collision_type is not None:
-            shape.collision_type = collision_type
+        shape_info.configure_shape(shape)
+        return shape
 
     def add_shape(self,
                   shape: pymunk.Shape,
-                  density: float = None,
-                  friction: float = None,
-                  elasticity: float = None,
-                  collision_type: int = None) -> None:
+                  shape_info: Type[PymunkShapeInfo] = None) -> pymunk.Shape:
 
-        self.set_shape_characteristics(shape, density, friction, elasticity, collision_type)
-        self.shapes.append(shape)
+        self.configure_shape(shape, shape_info)
+        shape.body = self.body
+        self.space.add(shape)
+
+        return shape
 
     def create_rect_shape(self,
                           rect: pygame.Rect,
-                          radius: float = -1,
-                          density: float = None,
-                          friction: float = None,
-                          elasticity: float = None) -> pymunk.Shape:
+                          radius: float,
+                          shape_info: Type[PymunkShapeInfo] = None) -> pymunk.Shape:
 
         shape = pymunk.Poly.create_box(self.body, rect.size, radius=radius)
-        self.set_shape_characteristics(shape, density, friction, elasticity)
-        self.shapes.append(shape)
-
-        return shape
+        return self.add_shape(shape, shape_info)
 
     def create_circle_shape(self,
                             radius: float,
-                            density: float = None,
-                            friction: float = None,
-                            elasticity: float = None) -> pymunk.Shape:
+                            shape_info: Type[PymunkShapeInfo] = None) -> pymunk.Shape:
+
+        if shape_info is None:
+            shape_info = self.shape_info
 
         shape = pymunk.Circle(self.body, radius)
-        self.set_shape_characteristics(shape, density, friction, elasticity)
-        self.shapes.append(shape)
-        return shape
+        return self.add_shape(shape, shape_info)
 
     def create_surface_shape(self,
                              surface: pygame.Surface,
                              scale: float = 1,
                              offset: Sequence[float, float] = (0, 0),
-                             march_type: typing.Literal["soft", "hard"] = "soft",
+                             march_type: Literal["soft", "hard"] = "soft",
                              radius: float = -1,
-                             density: float = None,
-                             friction: float = None,
-                             elasticity: float = None) -> list[pymunk.Shape]:
+                             shape_info: Type[PymunkShapeInfo] = None) -> list[pymunk.Shape]:
+
+        if shape_info is None:
+            shape_info = self.shape_info
 
         size = surface.get_size()
+        offset = [offset[i]+size[i]/2 for i in range(2)]
         surface_bounding_box = pymunk.BB(0, 0, size[0]-1, size[1]-1)
         surface_array = pygame.surfarray.pixels3d(pygame.mask.from_surface(surface).to_surface())
 
         def sample_function(_point: tuple[float, float]) -> bool:
-            return surface_array[int(_point[0]), int(_point[1]), 0]
+            return bool(surface_array[int(_point[0]), int(_point[1]), 0])
 
         # First decomposition
         if march_type == "soft":
@@ -165,7 +145,7 @@ class PymunkPos(Pos):
 
         for i in range(len(polygons)):
             polygon = polygons[i]
-            polygons[i] = [(point[0]-size[0]/2+offset[0], point[1]-size[1]/2+offset[1]) for point in polygon]
+            polygons[i] = [(offset[0]+point[0], offset[1]+point[1]) for point in polygon]
 
         shapes = []
         for polygon in polygons:
@@ -175,64 +155,38 @@ class PymunkPos(Pos):
             shapes.append(pymunk.Poly(self.body, polygon, transform=t, radius=radius))
 
         for shape in shapes:
-            self.set_shape_characteristics(shape, density, friction, elasticity)
+            self.add_shape(shape, shape_info)
 
-        self.shapes.extend(shapes)
         return shapes
 
     @property
     def position(self) -> pygame.Vector2:
-        return pygame.Vector2(self.body.position.x, self.body.position.y)
-        # return int(self.body.position.x), int(self.body.position.y)
+        return pygame.Vector2(self.body.position)
 
     @position.setter
-    def position(self, position: tuple[float, float]) -> None:
+    def position(self, position: pygame.Vector2) -> None:
         self.body.position = tuple(position)
 
     @property
-    def speed(self) -> tuple[float, float]:
-        return self.body.velocity
+    def speed(self) -> pygame.Vector2:
+        return pygame.Vector2(self.body.velocity)
 
     @speed.setter
     def speed(self, speed: tuple[float, float]) -> None:
         self.body.velocity = tuple(speed)
 
     @property
-    def a(self) -> float:
+    def angle(self) -> float:
         return -math.degrees(self.body.angle) % 360
 
-    @a.setter
-    def a(self, a: float) -> None:
-        self.body.angle = math.radians(a)
+    @angle.setter
+    def angle(self, angle: float) -> None:
+        self.body.angle = math.radians(angle)
 
     @property
-    def va(self) -> float:
+    def angular_speed(self) -> float:
         return -math.radians(self.body.angular_velocity)
 
-    @va.setter
-    def va(self, va: float) -> None:
-        self.body.angular_velocity = math.radians(va)
-
-    @property
-    def aa(self) -> float:
-        return self.body.torque
-
-    @aa.setter
-    def aa(self, aa: float) -> None:
-        self.body.torque = aa
-
-    @property
-    def damping(self) -> float:
-        return self.body.damping
-
-    @damping.setter
-    def damping(self, damping: float) -> None:
-        self.body.damping = damping
-
-    @property
-    def a_damping(self) -> float:
-        return self.body.angular_damping
-
-    @a_damping.setter
-    def a_damping(self, a_damping: float) -> None:
-        self.body.angular_damping = a_damping
+    @angular_speed.setter
+    def angular_speed(self, angular_speed: float) -> None:
+        self.body.angular_velocity = math.radians(angular_speed)

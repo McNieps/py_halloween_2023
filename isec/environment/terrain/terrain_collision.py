@@ -2,11 +2,11 @@ import pygame
 import pymunk
 import pymunk.autogeometry
 
-from typing import Self
+from typing import Self, Type
 
 from isec.instance import BaseInstance
 from isec.environment.base import Entity, Sprite, Scene
-from isec.environment.position import PymunkPos
+from isec.environment.position.pymunk_pos import PymunkPos, PymunkShapeInfo
 from isec.environment.sprite import PymunkSprite
 
 
@@ -15,28 +15,21 @@ class TerrainCollision(Entity):
 
     def __init__(self,
                  polygon: list[tuple],
+                 shape_info: Type[PymunkShapeInfo],
                  linked_scene: Scene,
                  linked_instance: BaseInstance,
-                 wall_friction: float = None,
-                 wall_elasticity: float = None,
-                 show_collision: bool = False,
-                 collision_type: int = None,) -> None:
+                 show_collisions: bool = False) -> None:
 
-        position = PymunkPos(body_type=PymunkPos.TYPE_STATIC,
-                             base_shape_friction=wall_friction,
-                             base_shape_elasticity=wall_elasticity,
-                             shape_collision_type=collision_type)
+        position = PymunkPos(space=linked_scene.space,
+                             body_type="STATIC",
+                             default_shape_info=shape_info)
 
-        collision_shape = pymunk.Poly(position.body,
-                                      vertices=polygon,
-                                      radius=self.SHAPES_RADIUS)
+        position.add_shape(pymunk.Poly(body=position.body,
+                                       vertices=polygon,
+                                       radius=self.SHAPES_RADIUS))
 
-        position.set_shape_characteristics(collision_shape, collision_type=collision_type)
-        position.shapes.append(collision_shape)
-
-        sprite = PymunkSprite(position) if show_collision else Sprite(pygame.Surface((1, 1),
-                                                                                     pygame.SRCALPHA))
-
+        sprite = PymunkSprite(position) if show_collisions else Sprite(pygame.Surface((1, 1),
+                                                                                      pygame.SRCALPHA))
         super().__init__(position=position,
                          sprite=sprite,
                          linked_scene=linked_scene,
@@ -48,21 +41,17 @@ class TerrainCollision(Entity):
                            tile_size: int,
                            linked_scene: Scene,
                            linked_instance: BaseInstance,
-                           wall_friction: float = None,
-                           wall_elasticity: float = None,
-                           show_collision: bool = False,
-                           collision_type: int = None) -> list[Self]:
+                           shape_info: Type[PymunkShapeInfo] = None,
+                           show_collisions: bool = False) -> list[Self]:
 
         entities = []
 
         for polygon in cls._decompose_collision_map_into_polygons(collision_map, tile_size):
             new_body = cls(polygon=polygon,
+                           shape_info=shape_info,
                            linked_scene=linked_scene,
                            linked_instance=linked_instance,
-                           wall_friction=wall_friction,
-                           wall_elasticity=wall_elasticity,
-                           show_collision=show_collision,
-                           collision_type=collision_type)
+                           show_collisions=show_collisions)
 
             entities.append(new_body)
 

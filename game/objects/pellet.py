@@ -14,11 +14,11 @@ from game.objects.collision_types import CollisionTypes
 
 
 class Pellet(Entity):
-    QUANTITY_PER_SHOT = 50
+    QUANTITY_PER_SHOT = 1
     ANGULAR_SPRAY = 20  # degrees
     VELOCITY_MEAN = 2000  # pixels per second
     VELOCITY_STD = 100  # pixels per second
-    MASS = 1000  # grams
+    DENSITY = 1  # kg per pixel ** 2
 
     def __init__(self,
                  initial_position: tuple[float, float],
@@ -29,10 +29,12 @@ class Pellet(Entity):
 
         # Position related
         pellet_position = PymunkPos(position=initial_position,
+                                    linked_entity=self,
                                     body_type=PymunkPos.TYPE_DYNAMIC,
+                                    base_shape_density=self.DENSITY,
                                     base_shape_friction=0,
                                     base_shape_elasticity=0.5,
-                                    shape_collision_type=CollisionTypes.PELLET)
+                                    base_shape_collision_type=CollisionTypes.PELLET)
 
         pellet_position.add_shape(pymunk.Circle(body=pellet_position.body,
                                                 radius=1,
@@ -52,9 +54,8 @@ class Pellet(Entity):
                          linked_scene=linked_scene,
                          linked_instance=linked_instance)
 
-        print(self.position.speed)
-        print(self.position.body.space.shapes)
-
+        for shape in self.position.body.shapes:
+            print(shape.entity)
 
     def update(self,
                delta: float) -> None:
@@ -83,6 +84,11 @@ class Pellet(Entity):
 
         return pellets
 
+    def on_contact(self):
+        space: pymunk.Space = self.linked_scene.space  # NOQA
+        space.remove(*self.position.shapes, self.position.body)
+        self.destroy()
+
     @classmethod
     def _create_body_arbiters(cls,
                               scene: Scene) -> None:
@@ -96,8 +102,8 @@ class Pellet(Entity):
         def begin(arbiter, _space, _data):
             for shape in arbiter.shapes:
                 if shape.collision_type == CollisionTypes.PELLET:
-                    shape.entity.destroy()
-                    return True
+                    shape.entity.on_contact()
+                    print("hello")
             return False
 
         t.begin = begin

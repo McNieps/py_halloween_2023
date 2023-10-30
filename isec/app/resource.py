@@ -1,4 +1,5 @@
 import pygame
+import yaml
 import json
 import csv
 import os
@@ -85,6 +86,12 @@ class Resource:
 
                     current_dict[key_name] |= cls._load_json(assets_path+elem.name)
 
+                elif elem.name.endswith(".yaml") or elem.name.endswith(".yml"):
+                    if key_name not in current_dict:
+                        current_dict[key_name] = {}
+
+                    current_dict[key_name] |= cls._load_yaml(assets_path+elem.name)
+
                 elif elem.name.endswith(".csv"):
                     current_dict[key_name] = cls._load_csv(assets_path+elem.name)
 
@@ -97,6 +104,13 @@ class Resource:
 
         with open(file_path) as file:
             return json.load(file)
+
+    @classmethod
+    def _load_yaml(cls,
+                   file_path: PathLike) -> dict[str, ...]:
+
+        with open(file_path) as file:
+            return yaml.safe_load(file)
 
     @classmethod
     def _load_csv(cls,

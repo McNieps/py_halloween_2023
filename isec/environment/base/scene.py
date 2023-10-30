@@ -1,4 +1,5 @@
 import pygame
+import pymunk
 
 from isec.environment.base.camera import Camera
 
@@ -26,3 +27,7 @@ class Scene:
                camera: Camera = None) -> None:
 
         pass
+
+    @property
+    def space(self) -> pymunk.Space:
+        return pymunk.Space()

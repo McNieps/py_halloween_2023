@@ -1,3 +1,5 @@
+import pymunk
+
 from isec.environment.base.scene import Scene
 from isec.environment.base.camera import Camera
 from isec.environment.scene import EntityScene, TilemapScene
@@ -77,5 +79,5 @@ class ComposedScene(Scene):
                 tilemap_scene.render(camera=camera)
 
     @property
-    def space(self):
+    def space(self) -> pymunk.Space:
         return self.entity_scene.space

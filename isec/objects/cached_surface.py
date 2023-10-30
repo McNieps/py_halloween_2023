@@ -29,5 +29,5 @@ class CachedSurface(pygame.Surface):
 
         return self.surfaces[self._get_surface_index(item)]
 
-    def __repr__(self) -> None:
-        return f'CachedSurface with {len(self.surfaces)} surfaces.\n({self.surfaces})'
+    def __repr__(self) -> str:
+        return f"CachedSurface with {len(self.surfaces)} surfaces.\n({self.surfaces})"

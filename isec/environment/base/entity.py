@@ -1,6 +1,6 @@
 import pygame
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 from collections.abc import Iterable
 
 from isec.instance import BaseInstance
@@ -9,14 +9,14 @@ from isec.environment.base.sprite import Sprite
 
 
 if TYPE_CHECKING:
-    from isec.environment.base import Scene
+    from isec.environment.scene import ComposedScene, EntityScene
 
 
 class Entity:
     def __init__(self,
                  position: Pos,
                  sprite: Sprite,
-                 linked_scene: "Scene",
+                 linked_scene: Union["EntityScene", "ComposedScene"],
                  linked_instance: BaseInstance) -> None:
 
         # Metadata
@@ -42,7 +42,7 @@ class Entity:
                rect: pygame.Rect) -> None:
         """Render elements of this container."""
 
-        self.sprite.render(surface, rect, camera_offset, self.position.a)
+        self.sprite.render(surface, rect, camera_offset, self.position.angle)
 
     def destroy(self) -> None:
         """Destroy the entity."""
