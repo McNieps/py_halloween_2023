@@ -19,7 +19,7 @@ tilemaps:
     parallax_depth: 0
     tileset: *development_tileset
 
-  foreground:
+  foreground_1:
     parallax_depth: 2
     tileset: *development_tileset
 

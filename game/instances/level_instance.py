@@ -23,26 +23,10 @@ class LevelInstance(BaseInstance):
                              self.scene,
                              self)
 
-        self.level = None   # TODO
-
-        print(Resource.data["levels"]["level_1"]["data"])
-
-        self.terrain_tilemap = Tilemap(Resource.data["game"]["levels"]["test_3"],
-                                       {-1: None, 0: Resource.image["game"]["tileset"]["block"]})
-
-        self.collision_map = self.terrain_tilemap.create_collision_map([-1])
-        self.terrain_collision_entities = TerrainCollision.from_collision_map(self.collision_map,
-                                                                              self.terrain_tilemap.tile_size,
-                                                                              self.scene,
-                                                                              self,
-                                                                              collision_type=CollisionTypes.TERRAIN,
-                                                                              wall_friction=1,
-                                                                              wall_elasticity=0,
-                                                                              show_collision=True)
+        self.level = Level("level_1", self.scene, self)
 
         # Constructing the scene
-        self.scene.add_entities(*self.terrain_collision_entities, self.player)
-        self.scene.add_tilemap_scene(self.terrain_tilemap)
+        self.scene.add_entities(self.player)
 
     async def setup(self):
         self.scene.space.gravity = (0, 500)   # px.s-2
