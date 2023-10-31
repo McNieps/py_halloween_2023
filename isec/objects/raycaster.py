@@ -6,7 +6,7 @@ def cast_ray(collision_map: list[list[bool]],
              tile_size: int,
              start_position: pygame.Vector2,
              direction_vector: pygame.Vector2,
-             max_distance: float = 20) -> pygame.Vector2:
+             max_distance: float = 20) -> tuple[pygame.Vector2, bool]:
 
     vec_ray_start = start_position / tile_size
     vec_ray_dir = direction_vector.normalize()
@@ -67,4 +67,11 @@ def cast_ray(collision_map: list[list[bool]],
         elif collision_map[y_floor][x_floor]:
             tile_found = True
 
-    return vec_ray_dir * current_distance
+    if current_distance > max_distance:
+        current_distance = max_distance
+        tile_found = False
+
+    if not tile_found:
+        current_distance = max_distance
+
+    return (vec_ray_dir * current_distance + vec_ray_start) * tile_size, tile_found

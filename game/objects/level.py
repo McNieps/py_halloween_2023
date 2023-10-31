@@ -20,7 +20,7 @@ class Level:
         self.data = Resource.data["levels"][self.level_name]
 
         self.collidable_tilemap: Tilemap | None = None
-        self.collide_map: list[list[bool]] | None = None
+        self.collision_map: list[list[bool]] | None = None
 
         self.load_level()
 
@@ -56,13 +56,13 @@ class Level:
 
             if "collidable_tiles" in self.data["info"]["tilemaps"][tilemap_name]:
                 self.collidable_tilemap = tilemap
-                self.collide_map = tilemap.create_collision_map(self.data["info"]["tilemaps"][tilemap_name]["collidable_tiles"])
+                self.collision_map = tilemap.create_collision_map(self.data["info"]["tilemaps"][tilemap_name]["collidable_tiles"])
 
             self.scene.add_tilemap_scene(tilemap)
 
     def _create_collision_entities(self) -> None:
         if self.collidable_tilemap:
-            terrain_entities = TerrainCollision.from_collision_map(self.collide_map,
+            terrain_entities = TerrainCollision.from_collision_map(self.collision_map,
                                                                    self.collidable_tilemap.tile_size,
                                                                    self.scene,
                                                                    self.instance,

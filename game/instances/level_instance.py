@@ -41,7 +41,14 @@ class LevelInstance(BaseInstance):
         self.scene.render()
 
         cursor_pos = pygame.Vector2(pygame.mouse.get_pos()) + self.scene.camera.position.position
-        print(cursor_pos)
+
+        ray_pos = cast_ray(self.level.collision_map,
+                           self.level.collidable_tilemap.tile_size,
+                           self.player.position.position,
+                           cursor_pos-self.player.position.position,
+                           5)[0] - self.scene.camera.position.position
+        print(ray_pos)
+        pygame.draw.circle(self.window, (255, 0, 0), ray_pos, 5)
 
 
 if __name__ == '__main__':
