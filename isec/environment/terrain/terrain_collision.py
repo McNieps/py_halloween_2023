@@ -12,7 +12,7 @@ from isec.environment.sprite import PymunkSprite
 
 
 class TerrainCollision(Entity):
-    SHAPES_RADIUS = 2
+    SHAPES_RADIUS = 2.5
 
     def __init__(self,
                  polygon: list[tuple],
@@ -30,8 +30,6 @@ class TerrainCollision(Entity):
                                        radius=self.SHAPES_RADIUS))
 
         position.add_to_space()
-
-        print(position.body)
 
         if show_collisions:
             sprite = PymunkSprite(position)

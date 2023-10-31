@@ -10,7 +10,8 @@ class PymunkSprite(Sprite):
     def __init__(self,
                  pymunk_pos: PymunkPos,
                  rendering_technique: RenderingTechniques.TYPING = "optimized_static",
-                 blit_flag: int = 0) -> None:
+                 blit_flag: int = 0,
+                 color: tuple[int, int, int] = None) -> None:
 
         if pymunk_pos.body is None:
             raise ValueError("Position must be of type PymunkPos")
@@ -33,12 +34,14 @@ class PymunkSprite(Sprite):
         surface = pygame.Surface((bb_max_x*2, bb_max_y*2), pygame.SRCALPHA)
 
         for shape in pymunk_pos.body.shapes:
+            shape_color = color if color is not None else [random.randint(0, 255) for _ in range(3)]
+
             if isinstance(shape, pymunk.Poly):
                 shape: pymunk.Poly
                 # vertices = [v+(surface.get_size()[0]/2, surface.get_size()[1]/2) for v in shape.get_vertices()]
                 vertices = [v+(bb_max_x, bb_max_y) for v in shape.get_vertices()]
                 pygame.draw.polygon(surface,
-                                    [random.randint(0, 255) for _ in range(3)],
+                                    shape_color,
                                     vertices)
 
             elif isinstance(shape, pymunk.Segment):
@@ -47,7 +50,7 @@ class PymunkSprite(Sprite):
                 point_b = shape.b + (bb_max_x, bb_max_y)
                 width = int(shape.radius*2) if shape.radius > 0 else 1
                 pygame.draw.line(surface,
-                                 [random.randint(0, 255) for _ in range(3)],
+                                 shape_color,
                                  point_a,
                                  point_b,
                                  width=width)
@@ -57,7 +60,7 @@ class PymunkSprite(Sprite):
                 center = shape.center_of_gravity + (bb_max_x, bb_max_y)
                 radius = int(shape.radius)
                 pygame.draw.circle(surface,
-                                   [random.randint(0, 255) for _ in range(3)],
+                                   shape_color,
                                    center,
                                    radius)
 

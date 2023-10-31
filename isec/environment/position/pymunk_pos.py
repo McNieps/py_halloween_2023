@@ -24,7 +24,7 @@ class PymunkShapeInfo:
     def configure_shape(cls,
                         shape: pymunk.Shape) -> None:
 
-        # shape.collision_type = cls.collision_type
+        shape.collision_type = cls.collision_type
         # shape.filter = cls.shape_filter
         shape.elasticity = cls.elasticity
         shape.friction = cls.friction
@@ -64,8 +64,7 @@ class PymunkPos(Pos):
 
         self.shape_info = default_shape_info
 
-        if position is not None:
-            self.position = pygame.Vector2(0, 0)
+        self.position = position if position is not None else pygame.Vector2(0, 0)
 
     def configure_shape(self,
                         shape: pymunk.Shape,

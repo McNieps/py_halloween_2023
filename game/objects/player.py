@@ -13,6 +13,20 @@ from game.objects.controls import Controls
 from game.objects.pellet import Pellet
 
 
+class PlayerDebug(Entity):
+    def __init__(self,
+                 player_position: PymunkPos,
+                 linked_scene: ComposedScene,
+                 linked_instance: BaseInstance) -> None:
+
+        print("i")
+        super().__init__(position=player_position,
+                         sprite=PymunkSprite(player_position,
+                                             color=(255, 255, 255)),
+                         linked_scene=linked_scene,
+                         linked_instance=linked_instance)
+
+
 class Player(Entity):
     WALK_FORCE = 75000
     AIRCONTROL_FORCE = WALK_FORCE / 3
@@ -42,25 +56,28 @@ class Player(Entity):
         self._add_control_callbacks()
 
         # Position related
-        player_position = self._create_body(position)
+        self._create_body(position)
         self._create_body_arbiters()
 
         # Sprite related
-        self.sprite.switch_state("idle")
+        self.sprite.switch_state("run")
+
         self.last_direction = 1
 
     def update(self,
                delta: float) -> None:
         """Update the player."""
 
-        self.handle_user_inputs(delta)
+        self._handle_user_inputs(delta)
         self.sprite.update(delta)
+
+        print(self.collision_status)
 
         self._reset_user_inputs()
         self._reset_collision_status()
 
-    def handle_user_inputs(self,
-                           _delta: float) -> None:
+    def _handle_user_inputs(self,
+                            _delta: float) -> None:
         """Handle user inputs. Must be called in the update method."""
 
         new_direction = self.last_direction
@@ -69,6 +86,8 @@ class Player(Entity):
             new_direction = -1
             if self.collision_status["FLOORED"]:
                 self.position.body.apply_force_at_local_point((-self.WALK_FORCE, 0))
+            elif self.collision_status["CONTACT_LEFT"]:
+                self.position.body.velocity = (0, 0)
 
             else:
                 self.position.body.apply_force_at_local_point((-self.AIRCONTROL_FORCE, 0))
@@ -77,6 +96,8 @@ class Player(Entity):
             new_direction = 1
             if self.collision_status["FLOORED"]:
                 self.position.body.apply_force_at_local_point((self.WALK_FORCE, 0))
+            elif self.collision_status["CONTACT_RIGHT"]:
+                self.position.body.velocity = (0, 0)
 
             else:
                 self.position.body.apply_force_at_local_point((self.AIRCONTROL_FORCE, 0))
@@ -104,7 +125,6 @@ class Player(Entity):
         # Shoot
         pellet_direction = 90 - math.degrees(math.atan2(*cursor_vec))
         pellet_position = (self.position.position[0], self.position.position[1])
-
         Pellet.shot_pellets(initial_position=pellet_position,
                             direction=pellet_direction,
                             linked_scene=self.linked_scene,
@@ -153,10 +173,10 @@ class Player(Entity):
         self.position.position = position
         self.position.space = self.linked_scene.space
 
-        self.skeleton = pymunk.Segment(self.position.body, (0, -6), (0, 3), 0)
-        self.feet = pymunk.Circle(self.position.body, 2, offset=(0, 3))
-        self.left_hand = pymunk.Segment(self.position.body, (-2, -4), (-2, -4), 0)
-        self.right_hand = pymunk.Segment(self.position.body, (2, -4), (2, -4), 0)
+        self.skeleton = pymunk.Segment(self.position.body, (0, -6), (0, 3), 1)
+        self.feet = pymunk.Circle(self.position.body, 1, offset=(0, 3))
+        self.left_hand = pymunk.Segment(self.position.body, (-3, -4), (0, -4), 0)
+        self.right_hand = pymunk.Segment(self.position.body, (0, -4), (3, -4), 0)
 
         self.position.add_shape(shape=self.skeleton, shape_info=PlayerSkeletonSI)
         self.position.add_shape(shape=self.feet, shape_info=PlayerFeetSI)

@@ -1,0 +1,22 @@
+state:
+  idle:
+    frames:
+      - {image: idle_0, duration: 0.5}
+      - {image: idle_1, duration: 0.25}
+      - {image: idle_2, duration: 0.25}
+      - {image: idle_3, duration: 0.5}
+      - {image: idle_2, duration: 0.25}
+      - {image: idle_1, duration: 0.25}
+    loop: true
+
+  run:
+    frames:
+      - {image: run_0, duration: 0.1}
+      - {image: run_1, duration: 0.1}
+      - {image: run_2, duration: 0.1}
+      - {image: run_1, duration: 0.1}
+      - {image: run_0, duration: 0.1}
+      - {image: run_3, duration: 0.1}
+      - {image: run_4, duration: 0.1}
+      - {image: run_3, duration: 0.1}
+    loop: true

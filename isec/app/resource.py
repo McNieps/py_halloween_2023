@@ -156,6 +156,12 @@ class Resource:
 
                     current_data_dict |= image_dict
 
+                elif elem.name == "index.yaml" or elem.name == "index.yml":
+                    with open(assets_path + elem.name) as index_image:
+                        image_dict = yaml.safe_load(index_image)
+
+                    current_data_dict |= image_dict
+
                 elif any(elem.name.endswith(ext) for ext in [".png", ".jpg"]):
                     current_image_dict[key_name] = pygame.image.load(assets_path + elem.name).convert_alpha()
 
