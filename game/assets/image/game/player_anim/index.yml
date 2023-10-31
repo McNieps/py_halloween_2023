@@ -20,3 +20,9 @@ state:
       - {image: run_4, duration: 0.1}
       - {image: run_3, duration: 0.1}
     loop: true
+
+  climb:
+    frames:
+      - { image: climb_0, duration: 0.1 }
+      - { image: climb_1, duration: 0.1 }
+    loop: true
