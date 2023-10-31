@@ -22,10 +22,10 @@ class TilemapScene(Scene):
         if camera is None:
             camera = self.camera
 
-        tile_size = self.tilemap.tile_size   # Trying to make the code more readable. Trying because it's not working.
+        tile_size = self.tilemap.tile_size
 
-        camera_pos = pygame.Vector2(math.floor(camera.position.position[0]) * self.tilemap.parallax_depth,
-                                    math.floor(camera.position.position[1]) * self.tilemap.parallax_depth)
+        camera_pos = pygame.Vector2(math.floor(camera.position.x) * self.tilemap.parallax_depth,
+                                    math.floor(camera.position.y) * self.tilemap.parallax_depth)
 
         start_x = max(0, math.floor(camera_pos[0]/tile_size))
         end_x = min(math.ceil((camera_pos[0]+self.rect.width)/tile_size), self.tilemap.width)

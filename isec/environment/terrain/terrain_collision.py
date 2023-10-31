@@ -5,18 +5,19 @@ import pymunk.autogeometry
 from typing import Self, Type
 
 from isec.instance import BaseInstance
-from isec.environment.base import Entity, Sprite, Scene
+from isec.environment.base import Entity, Sprite
+from isec.environment.scene import EntityScene, ComposedScene
 from isec.environment.position.pymunk_pos import PymunkPos, PymunkShapeInfo
 from isec.environment.sprite import PymunkSprite
 
 
 class TerrainCollision(Entity):
-    SHAPES_RADIUS = 4
+    SHAPES_RADIUS = 2
 
     def __init__(self,
                  polygon: list[tuple],
                  shape_info: Type[PymunkShapeInfo],
-                 linked_scene: Scene,
+                 linked_scene: EntityScene | ComposedScene,
                  linked_instance: BaseInstance,
                  show_collisions: bool = False) -> None:
 
@@ -28,8 +29,15 @@ class TerrainCollision(Entity):
                                        vertices=polygon,
                                        radius=self.SHAPES_RADIUS))
 
-        sprite = PymunkSprite(position) if show_collisions else Sprite(pygame.Surface((1, 1),
-                                                                                      pygame.SRCALPHA))
+        position.add_to_space()
+
+        print(position.body)
+
+        if show_collisions:
+            sprite = PymunkSprite(position)
+        else:
+            sprite = Sprite(pygame.Surface((1, 1), pygame.SRCALPHA))
+
         super().__init__(position=position,
                          sprite=sprite,
                          linked_scene=linked_scene,
@@ -39,7 +47,7 @@ class TerrainCollision(Entity):
     def from_collision_map(cls,
                            collision_map: list[list[bool]],
                            tile_size: int,
-                           linked_scene: Scene,
+                           linked_scene: EntityScene | ComposedScene,
                            linked_instance: BaseInstance,
                            shape_info: Type[PymunkShapeInfo] = None,
                            show_collisions: bool = False) -> list[Self]:
@@ -56,20 +64,6 @@ class TerrainCollision(Entity):
             entities.append(new_body)
 
         return entities
-
-    """
-    def _build_collision_shape(self,
-                               position: PymunkPos) -> None:
-        Not possible to have holes...
-
-        for polygon in self._decompose_terrain_into_polygons():
-            collision_shape = pymunk.Poly(position.body,
-                                          vertices=polygon,
-                                          radius=self.SHAPES_RADIUS)
-
-            position.set_shape_characteristics(collision_shape)
-            position.shapes.append(collision_shape)
-    """
 
     @staticmethod
     def _decompose_collision_map_into_polygons(collision_map: list[list[bool]],

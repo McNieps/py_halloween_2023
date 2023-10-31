@@ -53,6 +53,8 @@ class ComposedScene(Scene):
         """
 
         self.entity_scene.update(delta)
+
+        # return
         for tilemap_scene in self.tilemap_scenes:
             tilemap_scene.update(delta)
 
@@ -67,13 +69,16 @@ class ComposedScene(Scene):
         if camera is None:
             camera = self.camera
 
+        # Draw the background tilemap scenes.
         for tilemap_scene in self.tilemap_scenes:
             if tilemap_scene.tilemap.parallax_depth > 1:
                 break
             tilemap_scene.render(camera=camera)
 
+        # Draw the entity scene.
         self.entity_scene.render(camera=camera)
 
+        # Draw the foreground tilemap scenes.
         for tilemap_scene in self.tilemap_scenes:
             if tilemap_scene.tilemap.parallax_depth > 1:
                 tilemap_scene.render(camera=camera)
@@ -81,3 +86,7 @@ class ComposedScene(Scene):
     @property
     def space(self) -> pymunk.Space:
         return self.entity_scene.space
+
+    @property
+    def entities(self) -> list[Entity]:
+        return self.entity_scene.entities

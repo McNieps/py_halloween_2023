@@ -72,3 +72,9 @@ class Sprite:
                                   destination_rect,
                                   offset,
                                   angle)
+
+    def switch_state(self,
+                     state: str) -> None:
+        err_msg = f"Only StateSprite support switch_state method"
+        if state not in self.surface:
+            raise ValueError(err_msg)

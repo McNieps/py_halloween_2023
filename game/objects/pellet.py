@@ -30,7 +30,7 @@ class Pellet(Entity):
         # Position related
         pellet_position = PymunkPos(position=initial_position,
                                     linked_entity=self,
-                                    body_type=PymunkPos.TYPE_DYNAMIC,
+                                    body_type="DYNAMIC",
                                     base_shape_density=self.DENSITY,
                                     base_shape_friction=0,
                                     base_shape_elasticity=0.5,
@@ -54,8 +54,6 @@ class Pellet(Entity):
                          linked_scene=linked_scene,
                          linked_instance=linked_instance)
 
-        for shape in self.position.body.shapes:
-            print(shape.entity)
 
     def update(self,
                delta: float) -> None:

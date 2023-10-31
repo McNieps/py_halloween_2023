@@ -7,12 +7,11 @@ from isec.environment.base.pos import Pos
 
 class Camera:
     def __init__(self,
-                 position: Iterable = None) -> None:
+                 position: pygame.Vector2 = None) -> None:
 
-        if position is None:
-            self.position = Pos()
-        else:
-            self.position = Pos(*position)
+        self.position = Pos()
+        if self.position is not None:
+            self.position.position = position
 
     def get_offset_pos(self,
                        position: Pos) -> pygame.math.Vector2:

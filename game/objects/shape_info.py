@@ -6,7 +6,7 @@ from isec.environment.position.pymunk_pos import PymunkShapeInfo
 class PlayerSkeletonSI(PymunkShapeInfo):
     collision_type: int = 0
     collision_category: int = 0b_0000001
-    collision_mask: int = 0b_0000000
+    collision_mask: int = 0b_0010000
     shape_filter: pymunk.ShapeFilter = pymunk.ShapeFilter(group=collision_type,
                                                           categories=collision_category,
                                                           mask=collision_mask)
@@ -62,13 +62,13 @@ class PlayerRightSI(PymunkShapeInfo):
 class TerrainSI(PymunkShapeInfo):
     collision_type: int = 4
     collision_category: int = 0b_0010000
-    collision_mask: int = 0b_0000000
+    collision_mask: int = 0b_0000001
     shape_filter: pymunk.ShapeFilter = pymunk.ShapeFilter(group=collision_type,
                                                           categories=collision_category,
                                                           mask=collision_mask)
 
     elasticity: float = 0
-    friction: float = 0
+    friction: float = 0.5
     density: float = 0
     sensor: bool = False
 

@@ -31,8 +31,10 @@ class Player(Entity):
         """
 
         # Metadata
-        self.linked_instance = linked_instance
-        self.linked_scene = linked_scene
+        super().__init__(position=PymunkPos("DYNAMIC"),
+                         sprite=StateSprite.create_from_directory("game/player_anim"),
+                         linked_scene=linked_scene,
+                         linked_instance=linked_instance)
 
         # Controls related
         self.user_events = self._reset_user_inputs()
@@ -44,15 +46,8 @@ class Player(Entity):
         self._create_body_arbiters()
 
         # Sprite related
-        player_sprite = StateSprite.create_from_directory("game/player_anim")
-        player_sprite.switch_state("idle")
+        self.sprite.switch_state("idle")
         self.last_direction = 1
-        # player_sprite = PymunkSprite(player_position, "rotated")
-
-        super().__init__(position=player_position,
-                         sprite=player_sprite,
-                         linked_scene=linked_scene,
-                         linked_instance=linked_instance)
 
     def update(self,
                delta: float) -> None:
@@ -151,27 +146,26 @@ class Player(Entity):
             self._create_input_cb(self.linked_instance, cb_str)
 
     def _create_body(self,
-                     position: pygame.Vector2) -> PymunkPos:
+                     position: pygame.Vector2) -> None:
         """Create the player's body."""
 
-        player_position = PymunkPos(space=self.linked_scene.space,
-                                    body_type="DYNAMIC",
-                                    default_shape_info=PlayerSkeletonSI,
-                                    position=position)
+        self.position.shape_info = PlayerSkeletonSI
+        self.position.position = position
+        self.position.space = self.linked_scene.space
 
-        self.skeleton = pymunk.Segment(player_position.body, (0, -6), (0, 3), 0)
-        self.feet = pymunk.Circle(player_position.body, 2, offset=(0, 3))
-        self.left_hand = pymunk.Segment(player_position.body, (-2, -4), (-2, -4), 0)
-        self.right_hand = pymunk.Segment(player_position.body, (2, -4), (2, -4), 0)
+        self.skeleton = pymunk.Segment(self.position.body, (0, -6), (0, 3), 0)
+        self.feet = pymunk.Circle(self.position.body, 2, offset=(0, 3))
+        self.left_hand = pymunk.Segment(self.position.body, (-2, -4), (-2, -4), 0)
+        self.right_hand = pymunk.Segment(self.position.body, (2, -4), (2, -4), 0)
 
-        player_position.add_shape(shape=self.skeleton, shape_info=PlayerSkeletonSI)
-        player_position.add_shape(shape=self.feet, shape_info=PlayerFeetSI)
-        player_position.add_shape(shape=self.left_hand, shape_info=PlayerLeftSI)
-        player_position.add_shape(shape=self.right_hand, shape_info=PlayerRightSI)
+        self.position.add_shape(shape=self.skeleton, shape_info=PlayerSkeletonSI)
+        self.position.add_shape(shape=self.feet, shape_info=PlayerFeetSI)
+        self.position.add_shape(shape=self.left_hand, shape_info=PlayerLeftSI)
+        self.position.add_shape(shape=self.right_hand, shape_info=PlayerRightSI)
 
-        player_position.body.moment = float('inf')   # Block rotation
-
-        return player_position
+        self.position.add_to_space()
+        self.position.body.mass = self.MASS
+        self.position.body.moment = float('inf')   # Block rotation
 
     def _create_body_arbiters(self):
         scene_space = self.linked_scene.space

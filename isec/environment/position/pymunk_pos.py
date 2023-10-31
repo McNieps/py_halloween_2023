@@ -4,7 +4,7 @@ import pymunk
 
 from typing import Literal, Type
 from pymunk.autogeometry import march_soft, march_hard
-from collections.abc import Iterable, Sequence
+from collections.abc import Sequence
 
 from isec.environment.base import Pos
 
@@ -24,8 +24,8 @@ class PymunkShapeInfo:
     def configure_shape(cls,
                         shape: pymunk.Shape) -> None:
 
-        shape.collision_type = cls.collision_type
-        shape.filter = cls.shape_filter
+        # shape.collision_type = cls.collision_type
+        # shape.filter = cls.shape_filter
         shape.elasticity = cls.elasticity
         shape.friction = cls.friction
         shape.density = cls.density
@@ -52,21 +52,20 @@ class PymunkPos(Pos):
                              "STATIC": pymunk.Body.STATIC}
 
     def __init__(self,
-                 space: pymunk.Space,
                  body_type: Literal["DYNAMIC", "KINEMATIC", "STATIC"] = "DYNAMIC",
+                 space: pymunk.Space = None,
                  default_shape_info: Type[PymunkShapeInfo] = None,
-                 position: Iterable = None) -> None:
+                 position: pygame.Vector2 = None) -> None:
 
-        if position is None:
-            position = pygame.Vector2(0, 0)
+        super().__init__()
 
         self.space = space
+        self.body = pymunk.Body(body_type=self._body_type_dict[body_type])
+
         self.shape_info = default_shape_info
-        self.body = pymunk.Body(self._body_type_dict[body_type])
 
-        self.space.add(self.body)
-
-        self.position = position
+        if position is not None:
+            self.position = pygame.Vector2(0, 0)
 
     def configure_shape(self,
                         shape: pymunk.Shape,
@@ -84,9 +83,15 @@ class PymunkPos(Pos):
 
         self.configure_shape(shape, shape_info)
         shape.body = self.body
-        self.space.add(shape)
+        self.shapes.append(shape)
 
         return shape
+
+    def add_to_space(self) -> None:
+        self.space.add(self.body, *self.shapes)
+
+    def remove_from_space(self) -> None:
+        self.space.remove(self.body, *self.shapes)
 
     def create_rect_shape(self,
                           rect: pygame.Rect,
@@ -190,3 +195,37 @@ class PymunkPos(Pos):
     @angular_speed.setter
     def angular_speed(self, angular_speed: float) -> None:
         self.body.angular_velocity = math.radians(angular_speed)
+
+    @property
+    def space(self) -> pymunk.Space | None:
+        return self._space
+
+    @space.setter
+    def space(self,
+              space: pymunk.Space) -> None:
+        if self._space is not None:
+            self._space.remove(self._body, *self._body.shapes)
+
+        self._space = space
+
+    @property
+    def body(self) -> pymunk.Body | None:
+        return self._body
+
+    @body.setter
+    def body(self,
+             body: pymunk.Body) -> None:
+
+        if self.space is not None and self.body is not None:
+            self.space.remove(self.body, *self.shapes)
+
+        self._body = body
+
+    @property
+    def shape_info(self) -> PymunkShapeInfo | None:
+        return self._shape_info
+
+    @shape_info.setter
+    def shape_info(self,
+                   shape_info: PymunkShapeInfo) -> None:
+        self._shape_info = shape_info

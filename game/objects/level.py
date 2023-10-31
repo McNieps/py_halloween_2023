@@ -19,14 +19,15 @@ class Level:
 
         self.data = Resource.data["levels"][self.level_name]
 
-        self.collision_map = []
-        self.collision_map_tile_size = 0
+        self.collidable_tilemap: Tilemap | None = None
+        self.collide_map: list[list[bool]] | None = None
 
         self.load_level()
 
     def load_level(self) -> None:
         self._create_tilemaps()
-        self._add_entities()
+        self._create_collision_entities()
+        # self._add_entities()
 
     def _create_tilemaps(self):
         for tilemap_name in self.data["info"]["tilemaps"]:
@@ -54,23 +55,21 @@ class Level:
             tilemap.name = tilemap_name
 
             if "collidable_tiles" in self.data["info"]["tilemaps"][tilemap_name]:
-                if tilemap_depth != 1:
-                    raise ValueError("Tilemap cannot be collidable and parallax at the same time.")
-                collidable_tiles = self.data["info"]["tilemaps"][tilemap_name]["collidable_tiles"]
-                self.collision_map = tilemap.create_collision_map(collidable_tiles)
-                self.collision_map_tile_size = tilemap.tile_size
+                self.collidable_tilemap = tilemap
+                self.collide_map = tilemap.create_collision_map(self.data["info"]["tilemaps"][tilemap_name]["collidable_tiles"])
 
             self.scene.add_tilemap_scene(tilemap)
 
-    def _create_collision_map(self, terrain_tilemap: Tilemap) -> None:
-        pass
+    def _create_collision_entities(self) -> None:
+        if self.collidable_tilemap:
+            terrain_entities = TerrainCollision.from_collision_map(self.collide_map,
+                                                                   self.collidable_tilemap.tile_size,
+                                                                   self.scene,
+                                                                   self.instance,
+                                                                   shape_info=TerrainSI,
+                                                                   show_collisions=True)
+
+            self.scene.add_entities(*terrain_entities)
 
     def _add_entities(self):
-        terrain_collision_entities = TerrainCollision.from_collision_map(self.collision_map,
-                                                                         self.collision_map_tile_size,
-                                                                         self.scene,
-                                                                         self.instance,
-                                                                         shape_info=TerrainSI,
-                                                                         show_collisions=True)
-
-        self.scene.add_entities(*terrain_collision_entities)
+        pass
