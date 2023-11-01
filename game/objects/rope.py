@@ -12,70 +12,93 @@ from game.objects.shape_info import MiscSI
 
 
 class Rope:
-    ADDITIONNAL_LINKS = 4
+    ADDITIONNAL_LENGTH = 20
 
     def __init__(self,
-                 base_position: pygame.Vector2,
+                 start_position: pygame.Vector2,
                  linked_entity: Entity,
                  linked_scene: ComposedScene,
                  linked_instance: BaseInstance) -> None:
         """Rope object used by the grappling hook. The grappling hook is used to swing the player."""
 
-        self.linked_space = linked_scene.space
+        self.linked_entity = linked_entity
+        self.linked_scene = linked_scene
+        self.linked_instance = linked_instance
         self.links: list[RopeLink] = []
         self.constraints: list[pymunk.Constraint] = []
-        end_position = linked_entity.position.position
 
-        rope_length = (end_position - base_position).length()
-        rope_link_count = math.ceil(rope_length / RopeLink.LINK_LENGTH)
-        link_vector = (end_position - base_position).normalize()*RopeLink.LINK_LENGTH
+        self.start_position = start_position
+
+        self.create_decorative_links()
+        self.create_true_link()
+
+    def create_true_link(self) -> None:
+
+        constraint = pymunk.PinJoint(self.linked_entity.position.body,
+                                     self.linked_scene.space.static_body,
+                                     (0, 0),
+                                     tuple(self.start_position))
+
+        self.constraints.append(constraint)
+        self.linked_scene.space.add(constraint)
+
+    def create_decorative_links(self) -> None:
+
+        end_position = self.linked_entity.position.position
+
+        rope_length = (end_position - self.start_position).length()
+        rope_link_count = math.ceil(rope_length / RopeLink.LINK_SPACING)
+        link_vector = (end_position - self.start_position).normalize() * RopeLink.LINK_SPACING
         link_angle = -link_vector.angle_to(pygame.Vector2(1, 0))
+        print(rope_link_count)
 
         # Create objects
         for i in range(rope_link_count):
-            link_center_pos = base_position + link_vector*(i+0.5)
-            self.links.append(RopeLink(linked_scene,
-                                       linked_instance,
+            link_center_pos = self.start_position + link_vector * (i + 0.5)
+            self.links.append(RopeLink(self.linked_scene,
+                                       self.linked_instance,
                                        link_center_pos,
                                        link_angle))
 
         # Create constraints
         base_constraint = pymunk.PinJoint(self.links[0].position.body,
-                                          linked_scene.space.static_body,
+                                          self.linked_scene.space.static_body,
                                           RopeLink.LINK_BASE_OFFSET,
-                                          tuple(base_position))
+                                          tuple(self.start_position))
         base_constraint.collide_bodies = False
 
         self.constraints.append(base_constraint)
-        linked_scene.space.add(base_constraint)
+        self.linked_scene.space.add(base_constraint)
 
-        for i in range(rope_link_count-1):
+        for i in range(rope_link_count - 1):
             constraint = pymunk.PinJoint(self.links[i].position.body,
-                                         self.links[i+1].position.body,
+                                         self.links[i + 1].position.body,
                                          RopeLink.LINK_END_OFFSET,
                                          RopeLink.LINK_BASE_OFFSET)
             constraint.collide_bodies = False
             self.constraints.append(constraint)
-            linked_scene.space.add(constraint)
+            self.linked_scene.space.add(constraint)
 
         end_constraint = pymunk.PinJoint(self.links[-1].position.body,
-                                         linked_entity.position.body,
-                                         RopeLink.LINK_END_OFFSET,
+                                         self.linked_entity.position.body,
+                                         (0, 0),
                                          (0, 0))
+
         self.constraints.append(end_constraint)
-        linked_scene.space.add(end_constraint)
+        self.linked_scene.space.add(end_constraint)
 
     def delete(self) -> None:
         """Delete the rope."""
-        self.linked_space.remove(*self.constraints)
+        self.linked_scene.space.remove(*self.constraints)
 
         for link in self.links:
             link.destroy()
 
 
-
 class RopeLink(Entity):
     LINK_LENGTH = 10
+    LINK_SPACING = LINK_LENGTH + 0
+
     LINK_BASE_OFFSET = (-LINK_LENGTH/2, 0)
     LINK_END_OFFSET = (LINK_LENGTH/2, 0)
 

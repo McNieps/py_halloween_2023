@@ -8,6 +8,7 @@ from isec.objects import cast_ray
 from game.objects.player import Player, PlayerDebug  # NOQA
 from game.objects.level import Level
 from game.objects.pellet import Pellet
+from game.objects.rope_range_indicator import RopeRangeIndicator
 
 
 class LevelInstance(BaseInstance):
@@ -21,6 +22,7 @@ class LevelInstance(BaseInstance):
         self.player = Player(pygame.Vector2(200, 200),
                              self.scene,
                              self)
+        self.rope_range_indicator = RopeRangeIndicator(self.player)
 
         # self.player_debug = PlayerDebug(self.player.position,  # NOQA
         #                                 self.scene,
@@ -29,10 +31,12 @@ class LevelInstance(BaseInstance):
     async def setup(self):
         self.scene.space.gravity = (0, 750)   # px.s-2
         self.scene.space.damping = 0.3
-        self.scene.space.iterations = 50
+        self.scene.space.iterations = 5
         self.scene.camera.position.position = pygame.Vector2(200, 150)
 
         Pellet.create_body_arbiters(self.scene)
+
+        print(Resource.data["colors"][1])
 
     async def loop(self):
         # LoopHandler.fps_caption()
@@ -43,15 +47,6 @@ class LevelInstance(BaseInstance):
         self.scene.render()
 
         cursor_pos = pygame.Vector2(pygame.mouse.get_pos()) + self.scene.camera.position.position
-
-        ray_pos = cast_ray(self.level.collision_map,
-                           self.level.collidable_tilemap.tile_size,
-                           self.player.position.position,
-                           cursor_pos-self.player.position.position,
-                           5)[0] - self.scene.camera.position.position
-
-        # pygame.draw.circle(self.window, (255, 0, 0), ray_pos, 5)
-
 
 if __name__ == '__main__':
     import asyncio

@@ -127,11 +127,13 @@ class Player(Entity):
 
     def _create_rope(self) -> None:
         cursor_pos = pygame.Vector2(pygame.mouse.get_pos()) + self.linked_scene.camera.position.position
+        tile_size = self.level.collidable_tilemap.tile_size
+        max_ray_length = Resource.data["objects"]["player"]["UTILS"]["ROPE_MAX_LENGTH"]/tile_size
         ray_pos, hit = cast_ray(self.level.collision_map,
-                                self.level.collidable_tilemap.tile_size,
+                                tile_size,
                                 self.position.position,
                                 cursor_pos-self.position.position,
-                                10)
+                                max_ray_length)
 
         if not hit:
             return

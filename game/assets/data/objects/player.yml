@@ -20,6 +20,7 @@ MOVEMENTS:
   CLIMB_JUMP_TIMEFRAME: 0.1     # s; time during which the player can jump after leaving a wall
 
 UTILS:
+  ROPE_MAX_LENGTH: 80           # px
   SHOTGUN_KNOCKBACK: 200        # N.s
   SHOTGUN_SHELLS: 2             # shells
   SHOTGUN_SHELL_RELOAD_TIME: 2  # s

@@ -11,9 +11,9 @@ tilemaps:
     collidable_tiles: [0]
     tileset: *development_tileset
 
-  background_1:
-   parallax_depth: 0.5
-   tileset: *development_tileset
+#   background_1:
+#    parallax_depth: 0.5
+#    tileset: *development_tileset
 
 #  background_2:
 #    parallax_depth: 0

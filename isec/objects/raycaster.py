@@ -9,6 +9,9 @@ def cast_ray(collision_map: list[list[bool]],
              max_distance: float = 20) -> tuple[pygame.Vector2, bool]:
 
     vec_ray_start = start_position / tile_size
+    if direction_vector.length() == 0:
+        return start_position, False
+
     vec_ray_dir = direction_vector.normalize()
 
     vec_start_cell = pygame.Vector2(math.floor(vec_ray_start[0]),

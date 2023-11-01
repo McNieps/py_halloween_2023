@@ -141,5 +141,5 @@ class MiscSI(PymunkShapeInfo):
 
     elasticity: float = 0
     friction: float = 0
-    density: float = 0.01
+    density: float = 0.002
     sensor: bool = False
