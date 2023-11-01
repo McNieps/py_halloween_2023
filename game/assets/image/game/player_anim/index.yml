@@ -23,6 +23,6 @@ state:
 
   climb:
     frames:
-      - { image: climb_0, duration: 0.1 }
-      - { image: climb_1, duration: 0.1 }
+      - { image: climb_0, duration: 1}
+      - { image: climb_1, duration: 1}
     loop: true

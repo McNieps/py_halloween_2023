@@ -91,7 +91,7 @@ class TerrainSI(PymunkShapeInfo):
                                                           mask=collision_mask)
 
     elasticity: float = 0
-    friction: float = 0.5
+    friction: float = 0
     density: float = 0
     sensor: bool = False
 

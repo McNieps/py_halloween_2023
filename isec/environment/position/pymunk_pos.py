@@ -25,7 +25,7 @@ class PymunkShapeInfo:
                         shape: pymunk.Shape) -> None:
 
         shape.collision_type = cls.collision_type
-        # shape.filter = cls.shape_filter
+        shape.filter = cls.shape_filter
         shape.elasticity = cls.elasticity
         shape.friction = cls.friction
         shape.density = cls.density
@@ -165,7 +165,7 @@ class PymunkPos(Pos):
 
     @property
     def position(self) -> pygame.Vector2:
-        return pygame.Vector2(self.body.position)
+        return pygame.Vector2(math.floor(self.body.position[0]), math.floor(self.body.position[1]))
 
     @position.setter
     def position(self, position: pygame.Vector2) -> None:

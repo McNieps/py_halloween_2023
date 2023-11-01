@@ -67,7 +67,7 @@ class Level:
                                                                    self.scene,
                                                                    self.instance,
                                                                    shape_info=TerrainSI,
-                                                                   show_collisions=True)
+                                                                   show_collisions=False)
 
             self.scene.add_entities(*terrain_entities)
 

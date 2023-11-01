@@ -1,0 +1,21 @@
+PHYSICS:
+  MASS: 1                       # kg
+
+MOVEMENTS:
+  FLOORED_WALK_FORCE: 750       # N
+  FLOORED_WALK_MAX_SPEED: 200   # px.s-1
+  FLOORED_SPEED_DAMPING: 0.0001 # s-1; % speed left per second, value > 1 means speed increases
+
+  AIRTIME_WALK_FORCE: 250       # N
+  AIRTIME_WALK_MAX_SPEED: 200   # px.s-1
+  AIRTIME_SPEED_DAMPING: 0.99   # s-1; % speed left per second, value > 1 means speed increases
+
+  JUMP_BASE_FORCE: 5500         # N
+  JUMP_FORCE_DAMPING: 0.00001   # s-1; % force left per second, value > 1 means force increases
+
+  CLIMB_JUMP_ANGLE: 15          # °
+
+UTILS:
+  SHOTGUN_KNOCKBACK: 200        # N.s
+  SHOTGUN_SHELLS: 2             # shells
+  SHOTGUN_SHELL_RELOAD_TIME: 2  # s

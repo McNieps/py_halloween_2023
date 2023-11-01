@@ -16,11 +16,11 @@ from game.objects.shape_info import PelletSI, TerrainSI
 
 
 class Pellet(Entity):
-    QUANTITY_PER_SHOT = 80
+    QUANTITY_PER_SHOT = 20
     ANGULAR_SPRAY = 20  # degrees
-    VELOCITY_MEAN = 2000  # pixels per second
-    VELOCITY_STD = 100  # pixels per second
-    DENSITY = 1  # kg per pixel ** 2
+    VELOCITY_MEAN = 1500  # pixels per second
+    VELOCITY_STD = 200  # pixels per second
+    DENSITY = 0.01  # kg per pixel ** 2
 
     def __init__(self,
                  initial_position: tuple[float, float],
@@ -29,15 +29,12 @@ class Pellet(Entity):
                  linked_instance: BaseInstance) -> None:
         """Pellet object used by the shotgun. The shotgun shoots a spray of pellets and propel the player backwards."""
 
-        print(initial_position)
-
         # Position related
         pellet_position = PymunkPos(body_type="DYNAMIC",
                                     space=linked_scene.space,
                                     default_shape_info=PelletSI,
                                     position=pygame.Vector2(*initial_position))
 
-        print(pellet_position.position)
         pellet_position.add_shape(pymunk.Circle(body=pellet_position.body,
                                                 radius=1))
 
@@ -49,8 +46,6 @@ class Pellet(Entity):
 
         pellet_position.add_to_space()
 
-        print(pellet_position.shapes[0].density)
-
         # Sprite related
         pellet_sprite = Sprite(Resource.image["game"]["objects"]["pellet"], rendering_technique="cached")
 
@@ -58,7 +53,6 @@ class Pellet(Entity):
                          sprite=pellet_sprite,
                          linked_scene=linked_scene,
                          linked_instance=linked_instance)
-
 
     def update(self,
                delta: float) -> None:
@@ -104,7 +98,7 @@ class Pellet(Entity):
 
         def begin(arbiter, _space, _data):
             for shape in arbiter.shapes:
-                if shape.collision_type == TerrainSI.collision_type:
+                if shape.collision_type == PelletSI.collision_type:
                     shape.entity.on_contact()
                     print("hello")
             return False

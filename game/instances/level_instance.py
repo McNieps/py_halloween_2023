@@ -5,7 +5,7 @@ from isec.instance import BaseInstance
 from isec.environment.scene import ComposedScene
 from isec.objects import cast_ray
 
-from game.objects.player import Player, PlayerDebug
+from game.objects.player import Player, PlayerDebug  # NOQA
 from game.objects.level import Level
 
 
@@ -21,9 +21,9 @@ class LevelInstance(BaseInstance):
                              self.scene,
                              self)
 
-        self.player_debug = PlayerDebug(self.player.position,  # NOQA
-                                        self.scene,
-                                        self)
+        # self.player_debug = PlayerDebug(self.player.position,  # NOQA
+        #                                 self.scene,
+        #                                 self)
 
     async def setup(self):
         self.scene.space.gravity = (0, 500)   # px.s-2
@@ -47,7 +47,7 @@ class LevelInstance(BaseInstance):
                            self.player.position.position,
                            cursor_pos-self.player.position.position,
                            5)[0] - self.scene.camera.position.position
-        print(ray_pos)
+
         pygame.draw.circle(self.window, (255, 0, 0), ray_pos, 5)
 
 
