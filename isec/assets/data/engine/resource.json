@@ -7,7 +7,7 @@
   },
 
   "sound": {
-    "master_volume": 0.2,
+    "master_volume": 0.5,
     "max_simultaneous_sounds": 64,
 
     "frequency": 44100,

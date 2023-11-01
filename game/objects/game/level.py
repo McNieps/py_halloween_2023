@@ -4,7 +4,7 @@ from isec.environment.base import Tilemap
 from isec.environment.terrain.terrain_collision import TerrainCollision
 from isec.instance import BaseInstance
 
-from game.objects.shape_info import TerrainSI
+from game.objects.game.shape_info import TerrainSI
 
 
 class Level:

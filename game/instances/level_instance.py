@@ -3,12 +3,12 @@ import pygame
 from isec.app import Resource
 from isec.instance import BaseInstance
 from isec.environment.scene import ComposedScene
-from isec.objects import cast_ray
 
-from game.objects.player import Player, PlayerDebug  # NOQA
-from game.objects.level import Level
-from game.objects.pellet import Pellet
-from game.objects.rope_range_indicator import RopeRangeIndicator
+from game.objects.game.player import Player, PlayerDebug  # NOQA
+from game.objects.game.level import Level
+from game.objects.game.pellet import Pellet
+from game.objects.game.rope_range_indicator import RopeRangeIndicator
+from game.objects.game.ammo_indicator import AmmoIndicator
 
 
 class LevelInstance(BaseInstance):
@@ -23,10 +23,7 @@ class LevelInstance(BaseInstance):
                              self.scene,
                              self)
         self.rope_range_indicator = RopeRangeIndicator(self.player)
-
-        # self.player_debug = PlayerDebug(self.player.position,  # NOQA
-        #                                 self.scene,
-        #                                 self)
+        self.ammo_indicator = AmmoIndicator(self.player)
 
     async def setup(self):
         self.scene.space.gravity = (0, 750)   # px.s-2
@@ -36,10 +33,13 @@ class LevelInstance(BaseInstance):
 
         Pellet.create_body_arbiters(self.scene)
 
-        print(Resource.data["colors"][1])
-
     async def loop(self):
         # LoopHandler.fps_caption()
+
+        # Smart and very efficient way to always have the player on top of the entity list
+        player_index = self.scene.entities.index(self.player)
+        self.scene.entities.append(self.scene.entities.pop(player_index))
+        # /jk
 
         self.window.fill((24, 25, 35))
         self.scene.update(self.delta)

@@ -12,14 +12,14 @@ from isec.environment.base import Sprite, Entity
 from isec.environment.scene import EntityScene, ComposedScene
 from isec.instance import BaseInstance
 
-from game.objects.shape_info import PelletSI, TerrainSI
+from game.objects.game.shape_info import PelletSI, TerrainSI
 
 
 class Pellet(Entity):
-    QUANTITY_PER_SHOT = 20
+    QUANTITY_PER_SHOT = 25
     ANGULAR_SPRAY = 20  # degrees
     VELOCITY_MEAN = 1500  # pixels per second
-    VELOCITY_STD = 200  # pixels per second
+    VELOCITY_STD = 300  # pixels per second
     DENSITY = 0.01  # kg per pixel ** 2
 
     def __init__(self,
@@ -60,6 +60,7 @@ class Pellet(Entity):
 
         if not self.position.body.mass:
             self.destroy()
+            Resource.sound["pellet_hit"].play()
             return
 
         super().update(delta)

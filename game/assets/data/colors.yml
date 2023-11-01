@@ -4,11 +4,11 @@
 # Description: A gloomy, muted palette. Ideal for creating a somber atmosphere.
 # Colors: 8
 
-0: FF181923
-1: FF292d41
-2: FF38405d
-3: FF4c546d
-4: FF6f687a
-5: FF8b7983
-6: FFa58d89
-7: FFb59e90
+0: [24, 25, 35]
+1: [41, 45, 65]
+2: [56, 64, 93]
+3: [76, 84, 109]
+4: [111, 104, 122]
+5: [139, 121, 131]
+6: [165, 141, 137]
+7: [181, 158, 141]

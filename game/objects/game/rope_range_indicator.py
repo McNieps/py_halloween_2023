@@ -4,14 +4,14 @@ import pygame
 from isec.app import Resource
 from isec.environment import Entity, Sprite
 
-from game.objects.player import Player
+from game.objects.game.player import Player
 
 
 class RopeRangeIndicator(Entity):
-    MAX_ARC_WIDTH = 45  # degrees
+    MAX_ARC_WIDTH = 25  # degrees
     MIN_ARC_CUTOFF = 0.1  # degrees
-    MAX_VISIBILITY_THRESHOLD = 25  # pixels
-    VISIBILITY_RANGE_CUTOFF = 20  # pixels
+    MAX_VISIBILITY_THRESHOLD = 15  # pixels
+    VISIBILITY_RANGE_CUTOFF = 15  # pixels
     BELOW_ARC_REDUCTION = 0.5  # ratio
 
     def __init__(self,
@@ -52,13 +52,11 @@ class RopeRangeIndicator(Entity):
         else:
             arc_width = self.MAX_ARC_WIDTH
 
-        # print(arc_width)
         i = 0
         while arc_width > self.MIN_ARC_CUTOFF:
             half_arc_width = arc_width / 2
-            print(angle-half_arc_width, angle+half_arc_width)
             pygame.draw.arc(self.sprite.surface,
-                            int(Resource.data["colors"][7], 16),
+                            Resource.data["colors"][7],
                             pygame.Rect(i, i, (self.range-i) * 2, (self.range-i) * 2),
                             math.radians(angle-half_arc_width),
                             math.radians(angle+half_arc_width),

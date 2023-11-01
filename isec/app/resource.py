@@ -213,6 +213,13 @@ class Resource:
                     current_data_dict |= sound_dict
                     continue
 
+                if elem.name == "index.yaml" or elem.name == "index.yml":
+                    with open(assets_path + elem.name) as index_sound:
+                        sound_dict = yaml.safe_load(index_sound)
+
+                    current_data_dict |= sound_dict
+                    continue
+
                 raise InvalidFileFormatError(f"{elem.name.split('.')[-1]} is not a supported data file format")
 
     @classmethod

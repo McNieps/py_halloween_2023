@@ -1,6 +1,7 @@
 import math
 import pygame
 import pymunk
+import random
 
 from isec.app import Resource
 from isec.instance.base_instance import BaseInstance
@@ -10,11 +11,11 @@ from isec.environment.sprite import StateSprite, PymunkSprite  # NOQA Can be use
 from isec.environment.position import PymunkPos
 from isec.objects.raycaster import cast_ray
 
-from game.objects.shape_info import PlayerSkeletonSI, PlayerFeetSI, PlayerLeftSI, PlayerRightSI, TerrainSI
+from game.objects.game.shape_info import PlayerSkeletonSI, PlayerFeetSI, PlayerLeftSI, PlayerRightSI, TerrainSI
 from game.objects.controls import Controls
-from game.objects.pellet import Pellet
-from game.objects.level import Level
-from game.objects.rope import Rope
+from game.objects.game.pellet import Pellet
+from game.objects.game.level import Level
+from game.objects.game.rope import Rope
 
 
 class PlayerDebug(Entity):
@@ -54,6 +55,8 @@ class Player(Entity):
 
     # Utils
     SHOTGUN_KNOCKBACK: float | None = None
+    SHOTGUN_MAX_SHELLS: int | None = None
+    SHOTGUN_SHELL_RELOAD_TIME: float | None = None
 
     def __init__(self,
                  position: pygame.Vector2,
@@ -91,11 +94,21 @@ class Player(Entity):
         self.jump_vec = pygame.Vector2(0, -1)
 
         # Gameplay related
+        self.shells = 2
         self.rope: Rope | None = None
 
     def update(self,
                delta: float) -> None:
         """Update the player."""
+
+        old_count = math.floor(self.shells)
+        old_subcount = math.floor(self.shells*10)
+        self.shells = min(self.shells+delta/self.SHOTGUN_SHELL_RELOAD_TIME, self.SHOTGUN_MAX_SHELLS)
+        if math.floor(self.shells*10) > old_subcount:
+            Resource.sound["sub_reload"].play()
+
+        if math.floor(self.shells) > old_count:
+            Resource.sound[f"reload_{math.floor(self.shells)}"].play()
 
         self._handle_user_inputs()
         self.sprite.update(delta)
@@ -111,7 +124,20 @@ class Player(Entity):
     def _shoot(self) -> None:
         """Shoot a pellet."""
 
+        if self.shells < 1:
+            Resource.sound["no_shell"].play()
+            return
+
+        else:
+            Resource.sound[f"shot_{random.randint(1,3)}"].play()
+            self.shells -= 1
+
         cursor_vec = pygame.Vector2([pygame.mouse.get_pos()[i] - (200, 150)[i] for i in range(2)]).normalize()
+
+        angle = math.degrees(math.atan2(*cursor_vec))
+        new_dir = int(math.copysign(1, angle))
+        if new_dir:
+            self._set_direction(new_dir)
 
         # Shoot
         pellet_direction = 90 - math.degrees(math.atan2(*cursor_vec))
@@ -136,7 +162,9 @@ class Player(Entity):
                                 max_ray_length)
 
         if not hit:
+            Resource.sound["no_shell"].play()
             return
+        Resource.sound["rope_create"].play()
 
         self.rope = Rope(ray_pos,
                          self,
@@ -145,6 +173,7 @@ class Player(Entity):
 
     def _destroy_rope(self) -> None:
         if self.rope:
+            Resource.sound["rope_delete"].play()
             self.rope.delete()
             self.rope = None
 
@@ -197,6 +226,7 @@ class Player(Entity):
 
     def _air_control(self) -> None:
         self.position.body.apply_force_at_local_point((self.direction * self.AIRTIME_WALK_FORCE, 0))
+        self.sprite.switch_state("run")
 
     def _idle(self) -> None:
         self.sprite.switch_state("idle")
@@ -236,11 +266,13 @@ class Player(Entity):
                 self._run()
                 return
 
+            """
             if (any((self.collision_status["CONTACT_LEFT"] == 0 and self.direction == -1,
                     self.collision_status["CONTACT_RIGHT"] == 0 and self.direction == 1))
                     and self.position.body.velocity[1] > 0):
                 self._climb()
                 return
+            """
 
             self._air_control()
             return
@@ -396,3 +428,5 @@ class Player(Entity):
         cls.CLIMB_JUMP_TIMEFRAME = Resource.data["objects"]["player"]["MOVEMENTS"]["CLIMB_JUMP_TIMEFRAME"]
 
         cls.SHOTGUN_KNOCKBACK = Resource.data["objects"]["player"]["UTILS"]["SHOTGUN_KNOCKBACK"]
+        cls.SHOTGUN_MAX_SHELLS = Resource.data["objects"]["player"]["UTILS"]["SHOTGUN_MAX_SHELLS"]
+        cls.SHOTGUN_SHELL_RELOAD_TIME = Resource.data["objects"]["player"]["UTILS"]["SHOTGUN_SHELL_RELOAD_TIME"]
