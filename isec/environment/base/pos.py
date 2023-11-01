@@ -49,7 +49,7 @@ class Pos:
 
     def add_shape(self,
                   shape: pymunk.Shape,
-                  shape_info: Type["PymunkShapeInfo"]) -> None:
+                  shape_info: Type["PymunkShapeInfo"] | None = None) -> None:
         err_msg = "Only PymunkPos support add_shape method"
         raise TypeError(err_msg)
 

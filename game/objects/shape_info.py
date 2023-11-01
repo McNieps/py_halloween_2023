@@ -2,14 +2,21 @@ import pymunk
 
 from isec.environment.position.pymunk_pos import PymunkShapeInfo
 
-__all__ = ["PlayerSkeletonSI", "PlayerFeetSI", "PlayerLeftSI", "PlayerRightSI", "TerrainSI", "PelletSI", "MonsterSI"]
+__all__ = ["PlayerSkeletonSI",
+           "PlayerFeetSI",
+           "PlayerLeftSI",
+           "PlayerRightSI",
+           "TerrainSI",
+           "PelletSI",
+           "MonsterSI",
+           "MiscSI"]
 
 
 _collision_masks_input = {"PLAYER": ["TERRAIN"],
                           "TERRAIN": ["*"],
                           "PELLET": ["TERRAIN"],
                           "MONSTER": ["PLAYER", "TERRAIN", "PELLET", "MONSTER"],
-                          "MISC": []}
+                          "MISC": ["MISC"]}
 
 
 _collision_types = {key: i for i, key in enumerate(_collision_masks_input)}
@@ -134,5 +141,5 @@ class MiscSI(PymunkShapeInfo):
 
     elasticity: float = 0
     friction: float = 0
-    density: float = 0
+    density: float = 0.01
     sensor: bool = False

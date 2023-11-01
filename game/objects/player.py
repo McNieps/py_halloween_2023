@@ -8,6 +8,7 @@ from isec.environment.base import Entity
 from isec.environment.scene import ComposedScene
 from isec.environment.sprite import StateSprite, PymunkSprite  # NOQA Can be used for debugging
 from isec.environment.position import PymunkPos
+from isec.objects.raycaster import cast_ray
 
 from game.objects.shape_info import PlayerSkeletonSI, PlayerFeetSI, PlayerLeftSI, PlayerRightSI, TerrainSI
 from game.objects.controls import Controls
@@ -42,10 +43,14 @@ class Player(Entity):
     AIRTIME_WALK_MAX_SPEED: float | None = None
     AIRTIME_SPEED_DAMPING: float | None = None
 
-    JUMP_BASE_FORCE: float | None = None
     JUMP_FORCE_DAMPING: float | None = None
 
+    JUMP_BASE_FORCE: float | None = None
+    JUMP_TIMEFRAME: float | None = None
+
     CLIMB_JUMP_ANGLE: float | None = None
+    CLIMB_JUMP_BASE_FORCE: float | None = None
+    CLIMB_JUMP_TIMEFRAME: float | None = None
 
     # Utils
     SHOTGUN_KNOCKBACK: float | None = None
@@ -95,9 +100,6 @@ class Player(Entity):
         self._handle_user_inputs()
         self.sprite.update(delta)
 
-        print(self.collision_status)
-        print(self.jump_vec)
-
         self._reset_user_inputs()
         self._reset_collision_status()
 
@@ -124,31 +126,56 @@ class Player(Entity):
         self.position.body.apply_impulse_at_local_point(tuple(impulse_vec))
 
     def _create_rope(self) -> None:
-        pass
+        cursor_pos = pygame.Vector2(pygame.mouse.get_pos()) + self.linked_scene.camera.position.position
+        ray_pos, hit = cast_ray(self.level.collision_map,
+                                self.level.collidable_tilemap.tile_size,
+                                self.position.position,
+                                cursor_pos-self.position.position,
+                                10)
 
-    def _destroy_rope(self) -> None:
-        pass
-
-    def _jump(self) -> None:
-        if self.collision_status["FLOORED"] == 0:
-            self.jump_force = self.JUMP_BASE_FORCE
-            self.jump_vec = pygame.Vector2(0, -1)
-            self.collision_status["FLOORED"] = -5
+        if not hit:
             return
 
-        if any((self.collision_status["CONTACT_LEFT"] == 0 and self.direction == -1,
-                self.collision_status["CONTACT_RIGHT"] == 0 and self.direction == 1)):
+        self.rope = Rope(ray_pos,
+                         self,
+                         self.linked_scene,
+                         self.linked_instance)
+
+    def _destroy_rope(self) -> None:
+        if self.rope:
+            self.rope.delete()
+            self.rope = None
+
+    def _jump(self) -> None:
+        if self.position.body.velocity[1] < -1:
+            return
+
+        if self.collision_status["FLOORED"] < self.JUMP_TIMEFRAME:
             self.jump_force = self.JUMP_BASE_FORCE
-            self.jump_vec = pygame.Vector2(0, -1).rotate(-self.CLIMB_JUMP_ANGLE*self.direction)
-            self.collision_status["CONTACT_LEFT"] = -3
-            self.collision_status["CONTACT_RIGHT"] = -3
+            self.jump_vec = pygame.Vector2(0, -1)
+            # self.collision_status["FLOORED"] = -0.2
+            return
+
+        if all((self.user_events["KEYPRESSED_LEFT"] < self.CLIMB_JUMP_TIMEFRAME,
+                self.collision_status["CONTACT_LEFT"] < self.CLIMB_JUMP_TIMEFRAME)):
+
+            self.jump_force = self.JUMP_BASE_FORCE
+            self.jump_vec = pygame.Vector2(0, -1).rotate(self.CLIMB_JUMP_ANGLE)
+            self.collision_status["CONTACT_LEFT"] = -0.2
+            return
+
+        if all((self.user_events["KEYPRESSED_RIGHT"] < self.CLIMB_JUMP_TIMEFRAME,
+                self.collision_status["CONTACT_RIGHT"] < self.CLIMB_JUMP_TIMEFRAME)):
+
+            self.jump_force = self.JUMP_BASE_FORCE
+            self.jump_vec = pygame.Vector2(0, -1).rotate(-self.CLIMB_JUMP_ANGLE)
+            self.collision_status["CONTACT_RIGHT"] = -0.2
             return
 
     def _maintain_jump(self) -> None:
-        if self.collision_status["FLOORED"] == 0 or self.jump_force < 1:
-            return
+        # if self.collision_status["FLOORED"] == 0 or self.jump_force < 1:
+        #     return
 
-        self.jump_force *= self.JUMP_FORCE_DAMPING ** self.linked_instance.delta
         self.position.body.apply_force_at_local_point(tuple(self.jump_vec * self.jump_force))
 
     def _run(self) -> None:
@@ -180,23 +207,28 @@ class Player(Entity):
             self.position.body.velocity *= self.AIRTIME_SPEED_DAMPING ** self.linked_instance.delta
 
     def _handle_user_inputs(self):
-        if self.user_events["BUTTONDOWN_SHOOT"]:
+        if self.jump_force:
+            self.jump_force *= self.JUMP_FORCE_DAMPING ** self.linked_instance.delta
+            if self.jump_force < 1:
+                self.jump_force = 0
+
+        if self.user_events["BUTTONDOWN_SHOOT"] == 0:
             self._shoot()
 
-        if self.user_events["BUTTONDOWN_ROPE"]:
+        if self.user_events["BUTTONDOWN_ROPE"] == 0:
             self._create_rope()
 
-        if self.user_events["BUTTONUP_ROPE"] and self.rope is not None:
+        if self.user_events["BUTTONUP_ROPE"] == 0 and self.rope is not None:
             self._destroy_rope()
 
-        if self.user_events["KEYDOWN_JUMP"]:
+        if self.user_events["KEYDOWN_JUMP"] == 0:
             self._jump()
 
-        if self.user_events["KEYPRESSED_JUMP"]:
+        if self.user_events["KEYPRESSED_JUMP"] == 0:
             self._maintain_jump()
 
-        if self.user_events["KEYPRESSED_LEFT"] or self.user_events["KEYPRESSED_RIGHT"]:
-            self._set_direction(-1 if self.user_events["KEYPRESSED_LEFT"] else 1)
+        if self.user_events["KEYPRESSED_LEFT"] == 0 or self.user_events["KEYPRESSED_RIGHT"] == 0:
+            self._set_direction(-1 if self.user_events["KEYPRESSED_LEFT"] == 0 else 1)
 
             if self.collision_status["FLOORED"] == 0:
                 self._run()
@@ -216,35 +248,37 @@ class Player(Entity):
 
         self._idle()
 
-    def _reset_user_inputs(self) -> dict[str: bool]:
+    def _reset_user_inputs(self) -> None:
         """Reset user inputs to False."""
 
-        self.user_events = {"KEYDOWN_UP": False,
-                            "KEYDOWN_DOWN": False,
-                            "KEYDOWN_LEFT": False,
-                            "KEYPRESSED_LEFT": False,
-                            "KEYDOWN_RIGHT": False,
-                            "KEYPRESSED_RIGHT": False,
-                            "KEYDOWN_JUMP": False,
-                            "KEYPRESSED_JUMP": False,
-                            "BUTTONDOWN_SHOOT": False,
-                            "BUTTONDOWN_ROPE": False,
-                            "BUTTONUP_ROPE": False}
-        return self.user_events
+        if self.user_events is None:
+            self.user_events = {"KEYDOWN_UP": 99,
+                                "KEYDOWN_DOWN": 99,
+                                "KEYDOWN_LEFT": 99,
+                                "KEYPRESSED_LEFT": 99,
+                                "KEYDOWN_RIGHT": 99,
+                                "KEYPRESSED_RIGHT": 99,
+                                "KEYDOWN_JUMP": 99,
+                                "KEYPRESSED_JUMP": 99,
+                                "BUTTONDOWN_SHOOT": 99,
+                                "BUTTONDOWN_ROPE": 99,
+                                "BUTTONUP_ROPE": 99}
+            return
 
-    def _reset_collision_status(self) -> dict[str: bool]:
+        for event in self.user_events:
+            self.user_events[event] += self.linked_instance.delta
+
+    def _reset_collision_status(self):
         """Reset collision events to False."""
         if self.collision_status is None:
             self.collision_status = {"CONTACT_LEFT": 999,
                                      "CONTACT_RIGHT": 999,
                                      "FLOORED": 999}
 
-            return self.collision_status
+            return
 
         for collision in self.collision_status:
-            self.collision_status[collision] += 1
-
-        return self.collision_status
+            self.collision_status[collision] += self.linked_instance.delta
 
     def _add_control_callbacks(self) -> None:
         """Add all control callbacks to the instance's event_handler."""
@@ -331,7 +365,7 @@ class Player(Entity):
         cb_type, control_name = cb_str.split("_")
 
         async def cb() -> None:
-            self.user_events["".join(cb_str)] = True
+            self.user_events["".join(cb_str)] = 0
 
         cb_dict[cb_type](vars(Controls)[control_name], cb)
 
@@ -350,9 +384,13 @@ class Player(Entity):
         cls.AIRTIME_WALK_MAX_SPEED = Resource.data["objects"]["player"]["MOVEMENTS"]["AIRTIME_WALK_MAX_SPEED"]
         cls.AIRTIME_SPEED_DAMPING = Resource.data["objects"]["player"]["MOVEMENTS"]["AIRTIME_SPEED_DAMPING"]
 
-        cls.JUMP_BASE_FORCE = Resource.data["objects"]["player"]["MOVEMENTS"]["JUMP_BASE_FORCE"]
         cls.JUMP_FORCE_DAMPING = Resource.data["objects"]["player"]["MOVEMENTS"]["JUMP_FORCE_DAMPING"]
 
+        cls.JUMP_BASE_FORCE = Resource.data["objects"]["player"]["MOVEMENTS"]["JUMP_BASE_FORCE"]
+        cls.JUMP_TIMEFRAME = Resource.data["objects"]["player"]["MOVEMENTS"]["JUMP_TIMEFRAME"]
+
         cls.CLIMB_JUMP_ANGLE = Resource.data["objects"]["player"]["MOVEMENTS"]["CLIMB_JUMP_ANGLE"]
+        cls.CLIMB_JUMP_BASE_FORCE = Resource.data["objects"]["player"]["MOVEMENTS"]["CLIMB_JUMP_BASE_FORCE"]
+        cls.CLIMB_JUMP_TIMEFRAME = Resource.data["objects"]["player"]["MOVEMENTS"]["CLIMB_JUMP_TIMEFRAME"]
 
         cls.SHOTGUN_KNOCKBACK = Resource.data["objects"]["player"]["UTILS"]["SHOTGUN_KNOCKBACK"]

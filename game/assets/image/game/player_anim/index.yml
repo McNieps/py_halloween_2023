@@ -11,14 +11,14 @@ state:
 
   run:
     frames:
-      - {image: run_0, duration: 0.1}
-      - {image: run_1, duration: 0.1}
-      - {image: run_2, duration: 0.1}
-      - {image: run_1, duration: 0.1}
-      - {image: run_0, duration: 0.1}
-      - {image: run_3, duration: 0.1}
-      - {image: run_4, duration: 0.1}
-      - {image: run_3, duration: 0.1}
+      - {image: run_0, duration: 0.15}
+      - {image: run_1, duration: 0.15}
+      - {image: run_2, duration: 0.15}
+      - {image: run_1, duration: 0.15}
+      - {image: run_0, duration: 0.15}
+      - {image: run_3, duration: 0.15}
+      - {image: run_4, duration: 0.15}
+      - {image: run_3, duration: 0.15}
     loop: true
 
   climb:

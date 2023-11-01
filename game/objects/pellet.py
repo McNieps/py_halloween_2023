@@ -58,6 +58,10 @@ class Pellet(Entity):
                delta: float) -> None:
         """Update the pellet."""
 
+        if not self.position.body.mass:
+            self.destroy()
+            return
+
         super().update(delta)
 
         # The pellet will always be angled in the direction of the shot
@@ -81,14 +85,9 @@ class Pellet(Entity):
 
         return pellets
 
-    def on_contact(self):
-        space: pymunk.Space = self.linked_scene.space  # NOQA
-        space.remove(*self.position.shapes, self.position.body)
-        self.destroy()
-
     @classmethod
-    def _create_body_arbiters(cls,
-                              scene: ComposedScene | EntityScene) -> None:
+    def create_body_arbiters(cls,
+                             scene: ComposedScene | EntityScene) -> None:
         """Create the arbiters for the player's body."""
 
         scene_space: pymunk.Space = scene.space
@@ -96,11 +95,14 @@ class Pellet(Entity):
         t = scene_space.add_collision_handler(PelletSI.collision_type,
                                               TerrainSI.collision_type)
 
-        def begin(arbiter, _space, _data):
+        def begin(arbiter: pymunk.Arbiter,
+                  _space: pymunk.Space,
+                  _data: dict):
+
             for shape in arbiter.shapes:
                 if shape.collision_type == PelletSI.collision_type:
-                    shape.entity.on_contact()
-                    print("hello")
+                    _space.remove(shape.body, *shape.body.shapes)
+                    # shape.entity.on_contact()
             return False
 
         t.begin = begin

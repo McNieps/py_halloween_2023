@@ -6,14 +6,18 @@ MOVEMENTS:
   FLOORED_WALK_MAX_SPEED: 200   # px.s-1
   FLOORED_SPEED_DAMPING: 0.0001 # s-1; % speed left per second, value > 1 means speed increases
 
-  AIRTIME_WALK_FORCE: 250       # N
+  AIRTIME_WALK_FORCE: 500       # N
   AIRTIME_WALK_MAX_SPEED: 200   # px.s-1
   AIRTIME_SPEED_DAMPING: 0.99   # s-1; % speed left per second, value > 1 means speed increases
 
-  JUMP_BASE_FORCE: 5500         # N
   JUMP_FORCE_DAMPING: 0.00001   # s-1; % force left per second, value > 1 means force increases
 
+  JUMP_BASE_FORCE: 5750         # N
+  JUMP_TIMEFRAME: 0.1           # s; time during which the player can jump after leaving the floor
+
   CLIMB_JUMP_ANGLE: 15          # °
+  CLIMB_JUMP_BASE_FORCE: 3000   # N
+  CLIMB_JUMP_TIMEFRAME: 0.1     # s; time during which the player can jump after leaving a wall
 
 UTILS:
   SHOTGUN_KNOCKBACK: 200        # N.s

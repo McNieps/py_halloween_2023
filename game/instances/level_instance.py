@@ -7,6 +7,7 @@ from isec.objects import cast_ray
 
 from game.objects.player import Player, PlayerDebug  # NOQA
 from game.objects.level import Level
+from game.objects.pellet import Pellet
 
 
 class LevelInstance(BaseInstance):
@@ -26,16 +27,17 @@ class LevelInstance(BaseInstance):
         #                                 self)
 
     async def setup(self):
-        self.scene.space.gravity = (0, 500)   # px.s-2
+        self.scene.space.gravity = (0, 750)   # px.s-2
         self.scene.space.damping = 0.3
+        self.scene.space.iterations = 50
         self.scene.camera.position.position = pygame.Vector2(200, 150)
 
-        # Pellet._create_body_arbiters(self.scene)
+        Pellet.create_body_arbiters(self.scene)
 
     async def loop(self):
         # LoopHandler.fps_caption()
 
-        self.window.fill((120, 120, 120))
+        self.window.fill((24, 25, 35))
         self.scene.update(self.delta)
         self.scene.camera.position.position = self.player.position.position - pygame.Vector2(200, 150)
         self.scene.render()
@@ -48,7 +50,7 @@ class LevelInstance(BaseInstance):
                            cursor_pos-self.player.position.position,
                            5)[0] - self.scene.camera.position.position
 
-        pygame.draw.circle(self.window, (255, 0, 0), ray_pos, 5)
+        # pygame.draw.circle(self.window, (255, 0, 0), ray_pos, 5)
 
 
 if __name__ == '__main__':
