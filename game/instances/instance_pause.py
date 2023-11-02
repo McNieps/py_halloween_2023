@@ -15,10 +15,6 @@ class InstancePause(BaseInstance):
         super().__init__(Resource.data["instances"]["menu"]["fps"])
         self.scene = EntityScene(Resource.data["instances"]["menu"]["fps"])
 
-        # self.scene.add_entities(ControlsButton(self, self.scene),
-        #                         SoundsButton(self, self.scene),
-        #                         ReturnButton(self, self.scene))
-
         blur_window = pygame.transform.box_blur(self.window, 1)
         self.window.blit(blur_window, (0, 0))
 

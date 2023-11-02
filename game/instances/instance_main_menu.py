@@ -14,6 +14,7 @@ class InstanceMainMenu(BaseInstance):
         pygame.mixer.music.load(Resource.project_assets_directory + "sound/music/main_menu.ogg")
         pygame.mixer.music.play(-1)
         pygame.mixer.music.set_volume(0.25)
+
         self.scene = EntityScene(self.fps)
 
         self.scene.add_entities(EntityBackground(self.scene, self),

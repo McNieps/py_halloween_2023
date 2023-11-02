@@ -172,6 +172,22 @@ class PymunkPos(Pos):
         self.body.position = tuple(position)
 
     @property
+    def x(self) -> float:
+        return self.body.position[0]
+
+    @x.setter
+    def x(self, value: float) -> None:
+        self.body.position = (value, self.body.position[1])
+
+    @property
+    def y(self) -> float:
+        return self.body.position[1]
+
+    @y.setter
+    def y(self, value: float) -> None:
+        self.body.position = (self.body.position[0], value)
+
+    @property
     def speed(self) -> pygame.Vector2:
         return pygame.Vector2(self.body.velocity)
 

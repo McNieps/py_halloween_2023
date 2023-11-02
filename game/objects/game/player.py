@@ -231,7 +231,6 @@ class Player(Entity):
 
     def _gravity_pull(self) -> None:
         self.position.body.apply_force_at_local_point((0, self.AIRTIME_GRAVITY_PULL))
-        print("iii")
 
     def _idle(self) -> None:
         self.sprite.switch_state("idle")

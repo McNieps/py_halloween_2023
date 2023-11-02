@@ -165,6 +165,9 @@ class Resource:
                 elif any(elem.name.endswith(ext) for ext in [".png", ".jpg"]):
                     current_image_dict[key_name] = pygame.image.load(assets_path + elem.name).convert_alpha()
 
+                elif elem.name.endswith(".pdn"):
+                    continue
+
                 else:
                     err_msg = (f"File {elem.name} is not valid. "
                                f"{elem.name.split('.')[-1]} is not a supported image file format")

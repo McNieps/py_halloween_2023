@@ -32,9 +32,19 @@ class StaticPos(Pos):
     def x(self) -> float:
         return self.position[0]
 
+    @x.setter
+    def x(self,
+          value: float) -> None:
+        self.position.x = value
+
     @property
     def y(self) -> float:
         return self.position[1]
+
+    @y.setter
+    def y(self,
+          value: float) -> None:
+        self.position.y = value
 
 
 if __name__ == '__main__':

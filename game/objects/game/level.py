@@ -1,3 +1,5 @@
+import pygame
+
 from isec.app import Resource
 from isec.environment.scene import ComposedScene
 from isec.environment.base import Tilemap
@@ -22,12 +24,19 @@ class Level:
         self.collidable_tilemap: Tilemap | None = None
         self.collision_map: list[list[bool]] | None = None
 
+        self.background_color: tuple[int, int, int] = (0, 0, 0)
+        self.visible_rect: pygame.Rect = pygame.Rect(0, 0, 0, 0)
+
         self.load_level()
 
     def load_level(self) -> None:
+        self.background_color = Resource.data["colors"][self.data["info"]["background_color"]]
         self._create_tilemaps()
         self._create_collision_entities()
-        # self._add_entities()
+        tile_size = self.collidable_tilemap.tile_size
+        self.visible_rect = pygame.Rect((tile_size, tile_size),
+                                        ((self.collidable_tilemap.width-2) * tile_size,
+                                         (self.collidable_tilemap.height-2) * tile_size))
 
     def _create_tilemaps(self):
         for tilemap_name in self.data["info"]["tilemaps"]:

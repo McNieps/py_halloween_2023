@@ -1,7 +1,7 @@
 import pygame
 
 from isec.app import Resource
-from isec.instance import BaseInstance
+from isec.instance import BaseInstance, LoopHandler
 from isec.environment.scene import ComposedScene
 
 from game.instances.instance_pause import InstancePause
@@ -19,10 +19,11 @@ class InstanceLevel(BaseInstance):
         # Constructing the scene
         self.scene = ComposedScene(self.fps)
 
-        self.level = Level("level_5", self.scene, self)
+        self.level = Level("level_0", self.scene, self)
         self.player = Player(pygame.Vector2(200, 200),
                              self.scene,
                              self)
+
         self.rope_range_indicator = RopeRangeIndicator(self.player)
         self.ammo_indicator = AmmoIndicator(self.player)
 
@@ -37,17 +38,37 @@ class InstanceLevel(BaseInstance):
         Pellet.create_body_arbiters(self.scene)
 
     async def loop(self):
-        # LoopHandler.fps_caption()
-
         # Smart and very efficient way to always have the player on top of the entity list
         player_index = self.scene.entities.index(self.player)
         self.scene.entities.append(self.scene.entities.pop(player_index))
         # /jk
 
-        self.window.fill((24, 25, 35))
+        self.window.fill(self.level.background_color)
         self.scene.update(self.delta)
-        self.scene.camera.position.position = self.player.position.position - pygame.Vector2(200, 150)
+        self.block_player()
+        self.center_camera()
         self.scene.render()
+
+    def center_camera(self):
+        self.scene.camera.position.position = self.player.position.position - pygame.Vector2(200, 150)
+
+        if self.scene.camera.position.x < self.level.visible_rect.left:
+            self.scene.camera.position.x = self.level.visible_rect.left
+        elif self.scene.camera.position.x > self.level.visible_rect.right - 400:
+            self.scene.camera.position.x = self.level.visible_rect.right - 400
+
+        if self.scene.camera.position.y < self.level.visible_rect.top:
+            self.scene.camera.position.y = self.level.visible_rect.top
+        elif self.scene.camera.position.y > self.level.visible_rect.bottom - 300:
+            self.scene.camera.position.y = self.level.visible_rect.bottom - 300
+
+    def block_player(self):
+        if self.player.position.x < self.level.visible_rect.left+4:
+            self.player.position.x = self.level.visible_rect.left+4
+            print("i")
+        elif self.player.position.x > self.level.visible_rect.right-4:
+            self.player.position.x = self.level.visible_rect.right-4
+
 
     @staticmethod
     async def pause():

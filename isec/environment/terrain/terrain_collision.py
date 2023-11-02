@@ -52,6 +52,12 @@ class TerrainCollision(Entity):
 
         entities = []
 
+        # prepare collision map
+        for y in range(len(collision_map)):
+            for x in range(len(collision_map[0])):
+                if x == 0 or y == 0 or x == len(collision_map[0])-1 or y == len(collision_map)-1:
+                    collision_map[y][x] = False
+
         for polygon in cls._decompose_collision_map_into_polygons(collision_map, tile_size):
             new_body = cls(polygon=polygon,
                            shape_info=shape_info,

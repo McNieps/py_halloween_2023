@@ -5,23 +5,21 @@
     },
     "activeFile": "",
     "expandedProjectPaths": [
-        "."
     ],
-    "file.lastUsedOpenFilter": "Tous les Fichiers (*)",
     "fileStates": {
-        "poly.tsx": {
-            "scaleInDock": 1,
-            "scaleInEditor": 3
-        }
     },
+    "last.exportedFilePath": "C:/Users/Lucas/PycharmProjects/py_halloween_2023/tiled",
     "last.imagePath": "C:/Users/Lucas/PycharmProjects/py_halloween_2023/game/assets/image/game/tileset",
+    "map.height": 80,
+    "map.lastUsedExportFilter": "Fichiers CSV (*.csv)",
+    "map.lastUsedFormat": "tmx",
     "map.tileHeight": 16,
     "map.tileWidth": 16,
+    "map.width": 100,
     "openFiles": [
     ],
-    "project": "halloween.tiled-project",
+    "project": "Halloween.tiled-project",
     "recentFiles": [
-        "poly.tsx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {

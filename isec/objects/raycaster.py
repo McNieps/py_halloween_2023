@@ -64,7 +64,7 @@ def cast_ray(collision_map: list[list[bool]],
                 x_floor >= len(collision_map[0]) - 1,
                 y_floor >= len(collision_map) - 1)):
 
-            tile_found = True
+            tile_found = False
             current_distance = max_distance
 
         elif collision_map[y_floor][x_floor]:
