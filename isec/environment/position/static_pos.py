@@ -16,9 +16,8 @@ class StaticPos(Pos):
     def __init__(self,
                  position: Iterable = None) -> None:
 
-        position = pygame.math.Vector2(*position) if position is not None else pygame.math.Vector2(0, 0)
-
-        super().__init__(position=position)
+        super().__init__()
+        self.position = pygame.math.Vector2(*position) if position is not None else pygame.math.Vector2(0, 0)
 
     def update(self,
                _delta: float) -> None:

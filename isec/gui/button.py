@@ -28,7 +28,10 @@ class Button(Entity):
             button_sprite = Sprite(surface=Resource.image["stock"]["button"],
                                    rendering_technique="static")
 
-        super().__init__(button_position, button_sprite)
+        super().__init__(button_position,
+                         button_sprite,
+                         linked_scene,
+                         linked_instance)
 
         if up_callback is None:
             up_callback = self._empty_callback

@@ -9,6 +9,7 @@ MOVEMENTS:
   AIRTIME_WALK_FORCE: 500       # N
   AIRTIME_WALK_MAX_SPEED: 200   # px.s-1
   AIRTIME_SPEED_DAMPING: 0.99   # s-1; % speed left per second, value > 1 means speed increases
+  AIRTIME_GRAVITY_PULL: 500     # N
 
   JUMP_FORCE_DAMPING: 0.00001   # s-1; % force left per second, value > 1 means force increases
 

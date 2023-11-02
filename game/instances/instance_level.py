@@ -4,6 +4,7 @@ from isec.app import Resource
 from isec.instance import BaseInstance
 from isec.environment.scene import ComposedScene
 
+from game.instances.instance_pause import InstancePause
 from game.objects.game.player import Player, PlayerDebug  # NOQA
 from game.objects.game.level import Level
 from game.objects.game.pellet import Pellet
@@ -11,19 +12,21 @@ from game.objects.game.rope_range_indicator import RopeRangeIndicator
 from game.objects.game.ammo_indicator import AmmoIndicator
 
 
-class LevelInstance(BaseInstance):
+class InstanceLevel(BaseInstance):
     def __init__(self):
         super().__init__(Resource.data["instances"]["game"]["fps"])
 
         # Constructing the scene
         self.scene = ComposedScene(self.fps)
 
-        self.level = Level("level_1", self.scene, self)
+        self.level = Level("level_5", self.scene, self)
         self.player = Player(pygame.Vector2(200, 200),
                              self.scene,
                              self)
         self.rope_range_indicator = RopeRangeIndicator(self.player)
         self.ammo_indicator = AmmoIndicator(self.player)
+
+        self.event_handler.register_keydown_callback(pygame.K_ESCAPE, self.pause)
 
     async def setup(self):
         self.scene.space.gravity = (0, 750)   # px.s-2
@@ -46,7 +49,10 @@ class LevelInstance(BaseInstance):
         self.scene.camera.position.position = self.player.position.position - pygame.Vector2(200, 150)
         self.scene.render()
 
-        cursor_pos = pygame.Vector2(pygame.mouse.get_pos()) + self.scene.camera.position.position
+    @staticmethod
+    async def pause():
+        await InstancePause().execute()
+
 
 if __name__ == '__main__':
     import asyncio
@@ -57,6 +63,6 @@ if __name__ == '__main__':
     async def main():
         App.init("../assets/")
 
-        await LevelInstance().execute()
+        await InstanceLevel().execute()
 
     asyncio.run(main())

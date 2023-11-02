@@ -35,7 +35,6 @@ class AnimatedSprite(Sprite):
                delta: float) -> None:
 
         self._current_duration += delta
-
         if self._current_duration >= self.frames_duration[self._current_frame]:
             self._current_duration -= self.frames_duration[self._current_frame]
             self._current_frame += 1

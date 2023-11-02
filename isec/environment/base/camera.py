@@ -1,20 +1,17 @@
 import pygame
 
-from collections.abc import Iterable
-
-from isec.environment.base.pos import Pos
+from isec.environment.position import SimplePos
 
 
 class Camera:
     def __init__(self,
                  position: pygame.Vector2 = None) -> None:
 
-        self.position = Pos()
-        if self.position is not None:
-            self.position.position = position
+        self.position = SimplePos()
+        self.position.position = position if position is not None else pygame.math.Vector2(0, 0)
 
     def get_offset_pos(self,
-                       position: Pos) -> pygame.math.Vector2:
+                       position: SimplePos) -> pygame.math.Vector2:
 
         return position.position - self.position.position
 

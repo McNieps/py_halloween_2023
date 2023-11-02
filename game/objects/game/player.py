@@ -43,6 +43,7 @@ class Player(Entity):
     AIRTIME_WALK_FORCE: float | None = None
     AIRTIME_WALK_MAX_SPEED: float | None = None
     AIRTIME_SPEED_DAMPING: float | None = None
+    AIRTIME_GRAVITY_PULL: float | None = None
 
     JUMP_FORCE_DAMPING: float | None = None
 
@@ -105,10 +106,10 @@ class Player(Entity):
         old_subcount = math.floor(self.shells*10)
         self.shells = min(self.shells+delta/self.SHOTGUN_SHELL_RELOAD_TIME, self.SHOTGUN_MAX_SHELLS)
         if math.floor(self.shells*10) > old_subcount:
-            Resource.sound["sub_reload"].play()
+            Resource.sound["game"]["shotgun"]["sub_reload"].play()
 
         if math.floor(self.shells) > old_count:
-            Resource.sound[f"reload_{math.floor(self.shells)}"].play()
+            Resource.sound["game"]["shotgun"][f"reload_{math.floor(self.shells)}"].play()
 
         self._handle_user_inputs()
         self.sprite.update(delta)
@@ -125,11 +126,11 @@ class Player(Entity):
         """Shoot a pellet."""
 
         if self.shells < 1:
-            Resource.sound["no_shell"].play()
+            Resource.sound["game"]["shotgun"]["no_shell"].play()
             return
 
         else:
-            Resource.sound[f"shot_{random.randint(1,3)}"].play()
+            Resource.sound["game"]["shotgun"][f"shot_{random.randint(1,3)}"].play()
             self.shells -= 1
 
         cursor_vec = pygame.Vector2([pygame.mouse.get_pos()[i] - (200, 150)[i] for i in range(2)]).normalize()
@@ -162,9 +163,9 @@ class Player(Entity):
                                 max_ray_length)
 
         if not hit:
-            Resource.sound["no_shell"].play()
+            Resource.sound["game"]["shotgun"]["no_shell"].play()
             return
-        Resource.sound["rope_create"].play()
+        Resource.sound["game"]["rope"]["create"].play()
 
         self.rope = Rope(ray_pos,
                          self,
@@ -173,7 +174,7 @@ class Player(Entity):
 
     def _destroy_rope(self) -> None:
         if self.rope:
-            Resource.sound["rope_delete"].play()
+            Resource.sound["game"]["rope"]["delete"].play()
             self.rope.delete()
             self.rope = None
 
@@ -228,6 +229,10 @@ class Player(Entity):
         self.position.body.apply_force_at_local_point((self.direction * self.AIRTIME_WALK_FORCE, 0))
         self.sprite.switch_state("run")
 
+    def _gravity_pull(self) -> None:
+        self.position.body.apply_force_at_local_point((0, self.AIRTIME_GRAVITY_PULL))
+        print("iii")
+
     def _idle(self) -> None:
         self.sprite.switch_state("idle")
 
@@ -259,6 +264,9 @@ class Player(Entity):
         if self.user_events["KEYPRESSED_JUMP"] == 0:
             self._maintain_jump()
 
+        if self.user_events["KEYPRESSED_DOWN"] == 0:
+            self._gravity_pull()
+
         if self.user_events["KEYPRESSED_LEFT"] == 0 or self.user_events["KEYPRESSED_RIGHT"] == 0:
             self._set_direction(-1 if self.user_events["KEYPRESSED_LEFT"] == 0 else 1)
 
@@ -266,7 +274,7 @@ class Player(Entity):
                 self._run()
                 return
 
-            """
+            """ OLD GRAB SYSTEM
             if (any((self.collision_status["CONTACT_LEFT"] == 0 and self.direction == -1,
                     self.collision_status["CONTACT_RIGHT"] == 0 and self.direction == 1))
                     and self.position.body.velocity[1] > 0):
@@ -286,8 +294,7 @@ class Player(Entity):
         """Reset user inputs to False."""
 
         if self.user_events is None:
-            self.user_events = {"KEYDOWN_UP": 99,
-                                "KEYDOWN_DOWN": 99,
+            self.user_events = {"KEYPRESSED_DOWN": 99,
                                 "KEYDOWN_LEFT": 99,
                                 "KEYPRESSED_LEFT": 99,
                                 "KEYDOWN_RIGHT": 99,
@@ -417,6 +424,7 @@ class Player(Entity):
         cls.AIRTIME_WALK_FORCE = Resource.data["objects"]["player"]["MOVEMENTS"]["AIRTIME_WALK_FORCE"]
         cls.AIRTIME_WALK_MAX_SPEED = Resource.data["objects"]["player"]["MOVEMENTS"]["AIRTIME_WALK_MAX_SPEED"]
         cls.AIRTIME_SPEED_DAMPING = Resource.data["objects"]["player"]["MOVEMENTS"]["AIRTIME_SPEED_DAMPING"]
+        cls.AIRTIME_GRAVITY_PULL = Resource.data["objects"]["player"]["MOVEMENTS"]["AIRTIME_GRAVITY_PULL"]
 
         cls.JUMP_FORCE_DAMPING = Resource.data["objects"]["player"]["MOVEMENTS"]["JUMP_FORCE_DAMPING"]
 

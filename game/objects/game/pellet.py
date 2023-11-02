@@ -60,7 +60,7 @@ class Pellet(Entity):
 
         if not self.position.body.mass:
             self.destroy()
-            Resource.sound["pellet_hit"].play()
+            Resource.sound["game"]["shotgun"]["pellet_hit"].play()
             return
 
         super().update(delta)

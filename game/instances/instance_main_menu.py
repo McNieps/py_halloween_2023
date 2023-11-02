@@ -4,22 +4,21 @@ from isec.app import Resource
 from isec.instance import BaseInstance, LoopHandler
 from isec.environment import EntityScene
 
-from game.objects.menu.buttons import PlayButton, OptionButton, QuitButton
-from game.objects.menu.decoration import Sea, Stars, Boat, Constellation
+from game.objects.menu.buttons_main_menu import PlayButton, OptionButton, QuitButton
+from game.objects.menu.entities_main_menu import EntityBackground, EntityPillars, EntityArtifact
 
 
-class Menu(BaseInstance):
+class InstanceMainMenu(BaseInstance):
     def __init__(self):
         super().__init__(Resource.data["instances"]["menu"]["fps"])
-        pygame.mixer.music.load(Resource.project_assets_directory + "sound/music/menu.ogg")
+        pygame.mixer.music.load(Resource.project_assets_directory + "sound/music/main_menu.ogg")
         pygame.mixer.music.play(-1)
         pygame.mixer.music.set_volume(0.25)
-        self.scene = EntityScene(Resource.data["instances"]["menu"]["fps"])
+        self.scene = EntityScene(self.fps)
 
-        self.scene.add_entities(Sea(),
-                                Stars(),
-                                Boat(),
-                                Constellation())
+        self.scene.add_entities(EntityBackground(self.scene, self),
+                                EntityPillars(self.scene, self),
+                                EntityArtifact(self.scene, self))
 
         self.scene.add_entities(PlayButton(self, self.scene),
                                 OptionButton(self, self.scene),
@@ -28,8 +27,8 @@ class Menu(BaseInstance):
         self.event_handler.register_keydown_callback(pygame.K_ESCAPE, LoopHandler.stop_game)
 
     async def loop(self):
-        self.window.fill(Resource.data["color"]["list"][-3])
-        pygame.draw.rect(self.window, Resource.data["color"]["list"][-1], pygame.Rect(0, 0, 400, 148))
+        self.window.fill(Resource.data["colors"][6])
+        pygame.draw.rect(self.window, Resource.data["colors"][7], pygame.Rect(0, 0, 400, 148))
         self.scene.update(self.delta)
         self.scene.render()
 
@@ -43,6 +42,6 @@ if __name__ == '__main__':
     async def main():
         App.init("../assets/")
 
-        await Menu().execute()
+        await InstanceMainMenu().execute()
 
     asyncio.run(main())
