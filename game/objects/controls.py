@@ -3,9 +3,9 @@ import warnings
 
 
 class Controls:
-    UP = pygame.K_z  # pygame.K_w
+    UP = pygame.K_w  # pygame.K_z
     DOWN = pygame.K_s
-    LEFT = pygame.K_q  # pygame.K_a
+    LEFT = pygame.K_a  # pygame.K_q
     RIGHT = pygame.K_d
     GRAB = pygame.K_LSHIFT
     JUMP = pygame.K_SPACE

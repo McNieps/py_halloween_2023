@@ -15,68 +15,68 @@
             "scale": 0.5,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 861,
-                "y": 295
+                "x": 961,
+                "y": 601
             }
         },
         "level_1.tmx": {
             "scale": 0.75,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 456.6666666666665,
-                "y": 726
+                "x": 799.3333333333333,
+                "y": 639.3333333333334
             }
         },
         "level_2.tmx": {
             "scale": 0.5,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 1401,
-                "y": 721
+                "x": 1279,
+                "y": 801
             }
         },
         "level_3.tmx": {
             "scale": 0.25,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 766,
-                "y": 2142
+                "x": 642,
+                "y": 1202
             }
         },
         "level_4.tmx": {
             "scale": 2,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 1118.75,
-                "y": 492.25
+                "x": 1599.75,
+                "y": 479.75
             }
         },
         "level_5.tmx": {
             "scale": 0.5,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 1159,
-                "y": 633
+                "x": 799,
+                "y": 801
             }
         },
         "level_6.tmx": {
             "scale": 0.75,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 677.9999999999999,
-                "y": 932.6666666666665
+                "x": 799.3333333333333,
+                "y": 799.3333333333333
             }
         },
         "level_7.tmx": {
             "scale": 0.75,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 733.9999999999999,
-                "y": 260.66666666666663
+                "x": 521.9999999999999,
+                "y": 284.66666666666663
             }
         }
     },
-    "last.exportedFilePath": "C:/Users/Lucas/PycharmProjects/py_halloween_2023/game/assets/data/levels/level_6",
+    "last.exportedFilePath": "C:/Users/Lucas/PycharmProjects/py_halloween_2023/game/assets/data/levels/level_7",
     "last.imagePath": "C:/Users/Lucas/PycharmProjects/py_halloween_2023/game/assets/image/game/tileset",
     "map.height": 50,
     "map.lastUsedExportFilter": "Fichiers CSV (*.csv)",
