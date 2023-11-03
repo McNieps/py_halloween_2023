@@ -23,7 +23,7 @@ class Pellet(Entity):
     DENSITY = 0.01  # kg per pixel ** 2
 
     def __init__(self,
-                 initial_position: tuple[float, float],
+                 initial_position: pygame.Vector2,
                  direction: float,
                  linked_scene: ComposedScene | EntityScene,
                  linked_instance: BaseInstance) -> None:

@@ -1,0 +1,12 @@
+pellet:
+  cached: true
+  cache_size: 45
+
+rope_link:
+  cached: true
+  cache_size: 90
+
+spike:
+  cached: true
+  cache_size: 45
+  

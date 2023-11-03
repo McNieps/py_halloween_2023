@@ -52,7 +52,8 @@ class LoopHandler:
                 cls.return_to_instance_id(instance)
                 return
 
-        raise InvalidInstanceError(f"There is no instance in stack with name: {instance_name}")
+        raise InvalidInstanceError(f"There is no instance in stack with name: {instance_name}.\n"
+                                   f"Current stack: {cls.stack}")
 
     @classmethod
     def get_stack(cls,

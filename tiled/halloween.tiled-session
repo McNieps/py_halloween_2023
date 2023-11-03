@@ -3,23 +3,109 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "",
+    "activeFile": "level_7.tmx",
     "expandedProjectPaths": [
     ],
     "fileStates": {
+        "ALL.tsx": {
+            "scaleInDock": 2,
+            "scaleInEditor": 5.5
+        },
+        "level_0.tmx": {
+            "scale": 0.5,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 861,
+                "y": 295
+            }
+        },
+        "level_1.tmx": {
+            "scale": 0.75,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 456.6666666666665,
+                "y": 726
+            }
+        },
+        "level_2.tmx": {
+            "scale": 0.5,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 1401,
+                "y": 721
+            }
+        },
+        "level_3.tmx": {
+            "scale": 0.25,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 766,
+                "y": 2142
+            }
+        },
+        "level_4.tmx": {
+            "scale": 2,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 1118.75,
+                "y": 492.25
+            }
+        },
+        "level_5.tmx": {
+            "scale": 0.5,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 1159,
+                "y": 633
+            }
+        },
+        "level_6.tmx": {
+            "scale": 0.75,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 677.9999999999999,
+                "y": 932.6666666666665
+            }
+        },
+        "level_7.tmx": {
+            "scale": 0.75,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 733.9999999999999,
+                "y": 260.66666666666663
+            }
+        }
     },
-    "last.exportedFilePath": "C:/Users/Lucas/PycharmProjects/py_halloween_2023/tiled",
+    "last.exportedFilePath": "C:/Users/Lucas/PycharmProjects/py_halloween_2023/game/assets/data/levels/level_6",
     "last.imagePath": "C:/Users/Lucas/PycharmProjects/py_halloween_2023/game/assets/image/game/tileset",
-    "map.height": 80,
+    "map.height": 50,
     "map.lastUsedExportFilter": "Fichiers CSV (*.csv)",
     "map.lastUsedFormat": "tmx",
     "map.tileHeight": 16,
     "map.tileWidth": 16,
-    "map.width": 100,
+    "map.width": 50,
     "openFiles": [
+        "ALL.tsx",
+        "level_0.tmx",
+        "level_1.tmx",
+        "level_2.tmx",
+        "level_3.tmx",
+        "level_4.tmx",
+        "level_5.tmx",
+        "level_6.tmx",
+        "level_7.tmx"
     ],
     "project": "Halloween.tiled-project",
     "recentFiles": [
+        "ALL.tsx",
+        "level_0.tmx",
+        "level_1.tmx",
+        "level_2.tmx",
+        "level_3.tmx",
+        "level_4.tmx",
+        "level_5.tmx",
+        "level_6.tmx",
+        "level_7.tmx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {

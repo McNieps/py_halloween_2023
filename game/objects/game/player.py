@@ -2,20 +2,24 @@ import math
 import pygame
 import pymunk
 import random
+import typing
 
 from isec.app import Resource
 from isec.instance.base_instance import BaseInstance
 from isec.environment.base import Entity
 from isec.environment.scene import ComposedScene
-from isec.environment.sprite import StateSprite, PymunkSprite  # NOQA Can be used for debugging
+from isec.environment.sprite import StateSprite, PymunkSprite
 from isec.environment.position import PymunkPos
 from isec.objects.raycaster import cast_ray
 
 from game.objects.game.shape_info import PlayerSkeletonSI, PlayerFeetSI, PlayerLeftSI, PlayerRightSI, TerrainSI
 from game.objects.controls import Controls
 from game.objects.game.pellet import Pellet
-from game.objects.game.level import Level
 from game.objects.game.rope import Rope
+
+
+if typing.TYPE_CHECKING:
+    from game.objects.game.level import Level
 
 
 class PlayerDebug(Entity):
@@ -63,7 +67,7 @@ class Player(Entity):
                  position: pygame.Vector2,
                  linked_scene: ComposedScene,
                  linked_instance: BaseInstance,
-                 level: Level = None) -> None:
+                 level: "Level" = None) -> None:
         """Create a player object."""
 
         # Metadata
@@ -73,10 +77,7 @@ class Player(Entity):
                          linked_instance=linked_instance)
 
         self._init_class_variables()
-
-        if level is None:
-            level = self.linked_instance.level  # NOQA
-        self.level = level
+        self.level: "Level" = level
 
         # Controls related
         self.user_events = None
@@ -89,18 +90,21 @@ class Player(Entity):
 
         # Position related
         self._create_body(position)
-        self._create_body_arbiters()
         self.direction = 1
         self.jump_force = 0
         self.jump_vec = pygame.Vector2(0, -1)
 
         # Gameplay related
         self.shells = 2
+        self._dead = False
         self.rope: Rope | None = None
 
     def update(self,
                delta: float) -> None:
         """Update the player."""
+
+        if self.is_dead():
+            return
 
         old_count = math.floor(self.shells)
         old_subcount = math.floor(self.shells*10)
@@ -116,6 +120,19 @@ class Player(Entity):
 
         self._reset_user_inputs()
         self._reset_collision_status()
+
+    def is_dead(self) -> bool:
+        if self.skeleton.dead and not self._dead:
+            self._dead = True
+            Resource.sound["game"]["player"]["death_by_spike"].play()
+            self.position.body.velocity = (0, -300)
+            return True
+
+        return self._dead
+
+    def kill(self) -> None:
+        self.skeleton.dead = True
+        self.is_dead()
 
     def _set_direction(self, direction: int) -> None:
         if direction != self.direction:
@@ -154,20 +171,31 @@ class Player(Entity):
 
     def _create_rope(self) -> None:
         cursor_pos = pygame.Vector2(pygame.mouse.get_pos()) + self.linked_scene.camera.position.position
-        tile_size = self.level.collidable_tilemap.tile_size
+        tile_size = self.level.terrain_tilemap.tile_size
         max_ray_length = Resource.data["objects"]["player"]["UTILS"]["ROPE_MAX_LENGTH"]/tile_size
-        ray_pos, hit = cast_ray(self.level.collision_map,
-                                tile_size,
-                                self.position.position,
-                                cursor_pos-self.position.position,
-                                max_ray_length)
+        grab_ray_pos, hit = cast_ray(self.level.collision_maps["grappling"],
+                                     tile_size,
+                                     self.position.position,
+                                     cursor_pos-self.position.position,
+                                     max_ray_length)
 
         if not hit:
             Resource.sound["game"]["shotgun"]["no_shell"].play()
             return
+
+        terrain_ray_pos, hit = cast_ray(self.level.collision_maps["terrain"],
+                                        tile_size,
+                                        self.position.position,
+                                        cursor_pos-self.position.position,
+                                        max_ray_length)
+
+        if hit and grab_ray_pos.length() < terrain_ray_pos.length():
+            Resource.sound["game"]["shotgun"]["no_shell"].play()
+            return
+
         Resource.sound["game"]["rope"]["create"].play()
 
-        self.rope = Rope(ray_pos,
+        self.rope = Rope(grab_ray_pos,
                          self,
                          self.linked_scene,
                          self.linked_instance)
@@ -188,6 +216,7 @@ class Player(Entity):
             # self.collision_status["FLOORED"] = -0.2
             return
 
+        """
         if all((self.user_events["KEYPRESSED_LEFT"] < self.CLIMB_JUMP_TIMEFRAME,
                 self.collision_status["CONTACT_LEFT"] < self.CLIMB_JUMP_TIMEFRAME)):
 
@@ -203,6 +232,7 @@ class Player(Entity):
             self.jump_vec = pygame.Vector2(0, -1).rotate(-self.CLIMB_JUMP_ANGLE)
             self.collision_status["CONTACT_RIGHT"] = -0.2
             return
+        """
 
     def _maintain_jump(self) -> None:
         # if self.collision_status["FLOORED"] == 0 or self.jump_force < 1:
@@ -339,6 +369,8 @@ class Player(Entity):
         self.left_hand = pymunk.Segment(self.position.body, (-3, -4), (0, -4), 0)
         self.right_hand = pymunk.Segment(self.position.body, (0, -4), (3, -4), 0)
 
+        self.skeleton.dead = False
+
         self.position.add_shape(shape=self.skeleton, shape_info=PlayerSkeletonSI)
         self.position.add_shape(shape=self.feet, shape_info=PlayerFeetSI)
         self.position.add_shape(shape=self.left_hand, shape_info=PlayerLeftSI)
@@ -348,11 +380,13 @@ class Player(Entity):
         self.position.body.mass = self.MASS
         self.position.body.moment = float('inf')   # Block rotation
 
-    def _create_body_arbiters(self):
-        scene_space = self.linked_scene.space
+    def create_collision_handler(self,
+                                 space: pymunk.Space = None) -> None:
 
-        t = scene_space.add_collision_handler(PlayerFeetSI.collision_type,
-                                              TerrainSI.collision_type)
+        space = self.linked_scene.space if space is None else space
+
+        t = space.add_collision_handler(PlayerFeetSI.collision_type,
+                                        TerrainSI.collision_type)
 
         def pre_solve(_arbiter: pymunk.Arbiter,
                       _space: pymunk.Space,
@@ -364,8 +398,8 @@ class Player(Entity):
 
         t.pre_solve = pre_solve
 
-        t = scene_space.add_collision_handler(PlayerLeftSI.collision_type,
-                                              TerrainSI.collision_type)
+        t = space.add_collision_handler(PlayerLeftSI.collision_type,
+                                        TerrainSI.collision_type)
 
         def pre_solve(_arbiter: pymunk.Arbiter,
                       _space: pymunk.Space,
@@ -377,8 +411,8 @@ class Player(Entity):
 
         t.pre_solve = pre_solve
 
-        t = scene_space.add_collision_handler(PlayerRightSI.collision_type,
-                                              TerrainSI.collision_type)
+        t = space.add_collision_handler(PlayerRightSI.collision_type,
+                                        TerrainSI.collision_type)
 
         def pre_solve(_arbiter: pymunk.Arbiter,
                       _space: pymunk.Space,

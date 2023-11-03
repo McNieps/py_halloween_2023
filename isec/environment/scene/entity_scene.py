@@ -28,14 +28,6 @@ class EntityScene(Scene):
         self.entities.extend([entity for entity in entities
                               if entity not in self.entities])
 
-        """
-        for entity in entities:
-            if isinstance(entity.position, PymunkPos):
-                if entity.position.body not in self.space.bodies:
-                    self.space.add(entity.position.body)
-                self.space.add(*entity.position.body.shapes)
-        """
-
     def remove_entities(self,
                         *entities: Entity) -> None:
 

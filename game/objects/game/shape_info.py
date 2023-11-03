@@ -9,14 +9,18 @@ __all__ = ["PlayerSkeletonSI",
            "TerrainSI",
            "PelletSI",
            "MonsterSI",
-           "MiscSI"]
+           "SpikeSI",
+           "MiscSI",
+           "GhostSI"]
 
 
-_collision_masks_input = {"PLAYER": ["TERRAIN"],
+_collision_masks_input = {"PLAYER": ["TERRAIN", "SPIKE", "GHOST"],
                           "TERRAIN": ["*"],
                           "PELLET": ["TERRAIN"],
                           "MONSTER": ["PLAYER", "TERRAIN", "PELLET", "MONSTER"],
-                          "MISC": ["MISC"]}
+                          "MISC": ["MISC"],
+                          "SPIKE": ["PLAYER"],
+                          "GHOST": ["PLAYER"]}
 
 
 _collision_types = {key: i for i, key in enumerate(_collision_masks_input)}
@@ -143,3 +147,32 @@ class MiscSI(PymunkShapeInfo):
     friction: float = 0
     density: float = 0.0002
     sensor: bool = False
+
+
+class SpikeSI(PymunkShapeInfo):
+    collision_type: int = 8
+    collision_category: int = _collision_categories["SPIKE"]
+    collision_mask: int = _collision_masks["SPIKE"]
+    shape_filter: pymunk.ShapeFilter = pymunk.ShapeFilter(group=collision_type,
+                                                          categories=collision_category,
+                                                          mask=collision_mask)
+
+    elasticity: float = 0
+    friction: float = 0
+    density: float = 0
+    sensor: bool = False
+
+
+class GhostSI(PymunkShapeInfo):
+    collision_type: int = 9
+    collision_category: int = _collision_categories["GHOST"]
+    collision_mask: int = _collision_masks["GHOST"]
+    shape_filter: pymunk.ShapeFilter = pymunk.ShapeFilter(group=collision_type,
+                                                          categories=collision_category,
+                                                          mask=collision_mask)
+
+    elasticity: float = 0
+    friction: float = 0
+    density: float = 0
+    sensor: bool = False
+

@@ -1,0 +1,16 @@
+rope:
+  create: 0.25
+  delete: 0.25
+
+shotgun:
+  shot_1: 0.2
+  shot_2: 0.2
+  shot_3: 0.2
+  reload_1: 0.25
+  reload_2: 0.25
+  sub_reload: 0.25
+  pellet_hit: 0.25
+  no_shell: 0.5
+
+player:
+  death_by_spike: 0.25

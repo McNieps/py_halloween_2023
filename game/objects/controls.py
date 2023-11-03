@@ -1,4 +1,5 @@
 import pygame
+import warnings
 
 
 class Controls:
@@ -18,7 +19,8 @@ class Controls:
     @classmethod
     def change_bind(cls, action, key):
         if key not in cls.KEY_NAMES:
-            raise ValueError("Key not found")
+            warnings.warn("Key not found")
+            return
 
         if action not in vars(cls):
             raise ValueError("Action not found")

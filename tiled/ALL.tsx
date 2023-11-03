@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tileset version="1.10" tiledversion="1.10.1" name="ALL" tilewidth="16" tileheight="16" tilecount="576" columns="24">
- <image source="../game/assets/image/game/tileset/tileset.png" width="384" height="384"/>
+ <image source="../game/assets/image/game/tileset/terrain_tileset.png" width="384" height="384"/>
  <wangsets>
   <wangset name="TERRAIN" type="mixed" tile="54">
    <wangcolor name="SNOW" color="#ffffff" tile="54" probability="1"/>
    <wangcolor name="ICE" color="#54fff9" tile="-1" probability="1"/>
+   <wangcolor name="SEA" color="#0000ff" tile="-1" probability="1"/>
+   <wangcolor name="CAVE_WALL" color="#5d6157" tile="-1" probability="1"/>
    <wangtile tileid="0" wangid="0,0,1,0,1,0,0,0"/>
    <wangtile tileid="1" wangid="0,0,1,0,0,0,1,0"/>
    <wangtile tileid="2" wangid="0,0,1,0,1,0,1,0"/>
@@ -190,6 +192,83 @@
    <wangtile tileid="189" wangid="2,1,2,1,1,1,2,1"/>
    <wangtile tileid="190" wangid="1,1,1,1,1,1,2,1"/>
    <wangtile tileid="191" wangid="1,1,1,1,1,1,1,1"/>
+   <wangtile tileid="208" wangid="0,0,4,0,4,0,0,0"/>
+   <wangtile tileid="209" wangid="0,0,4,0,0,0,4,0"/>
+   <wangtile tileid="210" wangid="0,0,4,0,4,0,4,0"/>
+   <wangtile tileid="211" wangid="0,0,4,0,0,0,4,0"/>
+   <wangtile tileid="212" wangid="0,0,4,0,0,0,4,0"/>
+   <wangtile tileid="213" wangid="0,0,0,0,4,0,4,0"/>
+   <wangtile tileid="215" wangid="0,0,0,0,4,0,0,0"/>
+   <wangtile tileid="232" wangid="4,0,0,0,4,0,0,0"/>
+   <wangtile tileid="233" wangid="0,0,4,4,4,0,0,0"/>
+   <wangtile tileid="234" wangid="4,0,4,0,4,4,4,0"/>
+   <wangtile tileid="235" wangid="0,0,4,4,4,0,4,0"/>
+   <wangtile tileid="236" wangid="0,0,4,4,4,4,4,0"/>
+   <wangtile tileid="237" wangid="4,0,4,4,4,4,4,0"/>
+   <wangtile tileid="238" wangid="0,0,4,4,4,4,4,0"/>
+   <wangtile tileid="239" wangid="4,0,0,0,4,4,4,0"/>
+   <wangtile tileid="256" wangid="4,0,4,0,4,0,0,0"/>
+   <wangtile tileid="257" wangid="4,4,4,0,4,0,4,0"/>
+   <wangtile tileid="258" wangid="4,0,0,0,0,0,4,4"/>
+   <wangtile tileid="259" wangid="4,4,4,0,4,0,0,0"/>
+   <wangtile tileid="260" wangid="4,4,4,0,0,0,4,4"/>
+   <wangtile tileid="261" wangid="4,4,4,4,4,0,4,4"/>
+   <wangtile tileid="262" wangid="4,4,4,4,4,4,4,4"/>
+   <wangtile tileid="263" wangid="4,0,0,0,4,4,4,4"/>
+   <wangtile tileid="280" wangid="4,0,0,0,4,0,0,0"/>
+   <wangtile tileid="281" wangid="4,0,4,4,4,0,0,0"/>
+   <wangtile tileid="282" wangid="0,0,4,0,4,4,4,0"/>
+   <wangtile tileid="283" wangid="4,0,4,4,4,0,4,0"/>
+   <wangtile tileid="284" wangid="0,0,0,0,4,4,4,0"/>
+   <wangtile tileid="285" wangid="4,4,4,4,4,0,0,0"/>
+   <wangtile tileid="286" wangid="4,4,4,4,4,4,4,4"/>
+   <wangtile tileid="287" wangid="4,0,0,0,4,4,4,4"/>
+   <wangtile tileid="304" wangid="4,0,0,0,4,0,0,0"/>
+   <wangtile tileid="305" wangid="4,4,4,4,4,0,0,0"/>
+   <wangtile tileid="306" wangid="4,0,0,0,4,4,4,4"/>
+   <wangtile tileid="307" wangid="4,4,4,0,0,0,0,0"/>
+   <wangtile tileid="308" wangid="4,0,4,4,4,0,4,4"/>
+   <wangtile tileid="309" wangid="4,4,4,4,4,4,4,0"/>
+   <wangtile tileid="310" wangid="4,4,4,0,4,4,4,4"/>
+   <wangtile tileid="311" wangid="4,0,0,0,4,0,4,4"/>
+   <wangtile tileid="328" wangid="4,0,4,0,0,0,0,0"/>
+   <wangtile tileid="329" wangid="4,4,4,4,4,0,4,0"/>
+   <wangtile tileid="330" wangid="4,0,4,4,4,4,4,4"/>
+   <wangtile tileid="331" wangid="0,0,4,4,4,4,4,0"/>
+   <wangtile tileid="332" wangid="4,4,4,0,4,4,4,0"/>
+   <wangtile tileid="333" wangid="4,4,4,0,4,0,4,4"/>
+   <wangtile tileid="334" wangid="4,0,4,0,4,0,4,4"/>
+   <wangtile tileid="335" wangid="4,0,0,0,4,0,4,0"/>
+   <wangtile tileid="353" wangid="4,4,4,4,4,0,0,0"/>
+   <wangtile tileid="354" wangid="4,4,4,4,4,4,4,4"/>
+   <wangtile tileid="355" wangid="4,4,4,4,4,4,4,4"/>
+   <wangtile tileid="356" wangid="4,0,4,4,4,4,4,4"/>
+   <wangtile tileid="357" wangid="4,0,4,0,4,4,4,0"/>
+   <wangtile tileid="358" wangid="4,0,0,0,0,0,4,0"/>
+   <wangtile tileid="359" wangid="4,0,0,0,0,0,0,0"/>
+   <wangtile tileid="376" wangid="0,0,4,0,0,0,0,0"/>
+   <wangtile tileid="377" wangid="4,4,4,0,0,0,4,0"/>
+   <wangtile tileid="378" wangid="4,4,4,0,0,0,4,4"/>
+   <wangtile tileid="379" wangid="4,4,4,0,0,0,4,4"/>
+   <wangtile tileid="380" wangid="4,4,4,0,0,0,4,4"/>
+   <wangtile tileid="381" wangid="4,0,4,0,0,0,4,4"/>
+   <wangtile tileid="382" wangid="0,0,0,0,0,0,4,0"/>
+   <wangtile tileid="476" wangid="0,0,3,3,3,3,3,0"/>
+   <wangtile tileid="477" wangid="0,0,3,3,3,3,3,0"/>
+   <wangtile tileid="478" wangid="0,0,3,3,3,3,3,0"/>
+   <wangtile tileid="479" wangid="0,0,3,3,3,3,3,0"/>
+   <wangtile tileid="500" wangid="3,3,3,3,3,3,3,3"/>
+   <wangtile tileid="501" wangid="3,3,3,3,3,3,3,3"/>
+   <wangtile tileid="502" wangid="3,3,3,3,3,3,3,3"/>
+   <wangtile tileid="503" wangid="3,3,3,3,3,3,3,3"/>
+   <wangtile tileid="524" wangid="3,3,3,3,3,3,3,3"/>
+   <wangtile tileid="525" wangid="3,3,3,3,3,3,3,3"/>
+   <wangtile tileid="526" wangid="3,3,3,3,3,3,3,3"/>
+   <wangtile tileid="527" wangid="3,3,3,3,3,3,3,3"/>
+   <wangtile tileid="548" wangid="3,3,3,3,3,3,3,3"/>
+   <wangtile tileid="549" wangid="3,3,3,3,3,3,3,3"/>
+   <wangtile tileid="550" wangid="3,3,3,3,3,3,3,3"/>
+   <wangtile tileid="551" wangid="3,3,3,3,3,3,3,3"/>
   </wangset>
  </wangsets>
 </tileset>

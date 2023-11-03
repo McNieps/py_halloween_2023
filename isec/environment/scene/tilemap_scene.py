@@ -32,8 +32,8 @@ class TilemapScene(Scene):
         start_y = max(0, math.floor(camera_pos[1]/tile_size))
         end_y = min(math.ceil((camera_pos[1]+self.rect.height)/tile_size), self.tilemap.height)
 
-        pos_x = numpy.arange(end_x) * self.tilemap.tile_size - camera_pos[0]
-        pos_y = numpy.arange(end_y) * self.tilemap.tile_size - camera_pos[1]
+        pos_x = numpy.floor(numpy.arange(end_x) * self.tilemap.tile_size - camera_pos[0])
+        pos_y = numpy.floor(numpy.arange(end_y) * self.tilemap.tile_size - camera_pos[1])
 
         self.surface.fblits([(self.tilemap.tileset[self.tilemap[y][x]], (pos_x[x], pos_y[y]))
                              for x in range(start_x, end_x)
