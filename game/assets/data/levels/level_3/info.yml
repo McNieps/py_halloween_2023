@@ -16,6 +16,7 @@ entities:
   - {type: player, position: [90, 780]}
   - {type: spike_range, start_position: [445, 2172], end_position: [1035, 2171]}
   - {type: arrow, position: [688, 1504], angle: 225}
+  - {type: ghost, position: [-40, 750]}
 
 triggers:
   - {zone: [1200, 1900, 100, 200], type: level_change, level_name: level_4}

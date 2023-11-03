@@ -21,6 +21,7 @@ entities:
   - {type: spike_range, start_position: [847, 763], end_position: [1167, 763], spacing: 10}
   - {type: arrow, position: [834, 1194], angle: -135}
   - {type: arrow, position: [437, 1287], angle: 135}
+  - {type: ghost, position: [100, 650]}
 
 triggers:
  - {zone: [0, 1100, 60, 200], type: level_change, level_name: level_7}

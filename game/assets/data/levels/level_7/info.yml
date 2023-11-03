@@ -1,10 +1,6 @@
 world:
   color: 1
 
-  _background_cave:
-    tileset: {name: terrain_tileset, tile_size: 16}
-    depth: 1
-
   _terrain:
     tileset: {name: terrain_tileset, tile_size: 16}
     solid_tiles:
@@ -13,12 +9,8 @@ world:
     depth: 1
 
 entities:
-  - {type: player, position: [50, 638]}
-  - {type: spike_range, start_position: [540, 715], end_position: [2918, 715]}
-  - {type: arrow, position: [1100, 510], angle: 45}
-  - {type: ghost, position: [-50, 700]}
+  - {type: player, position: [702, 712]}
 
 triggers:
- - {zone: [3100, 450, 100, 200], type: level_change, level_name: level_5}
- - {zone: [380, 0, 100, 2000], type: tutorial, tutorial_name: rope}
- - {zone: [380, 0, 100, 2000], type: tutorial, tutorial_name: range}
+  - {zone: [225, 145, 100, 60], type: tutorial, tutorial_name: gg}
+  - {zone: [225, 145, 100, 60], type: tutorial, tutorial_name: gg2}

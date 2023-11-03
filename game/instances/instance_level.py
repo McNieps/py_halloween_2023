@@ -18,7 +18,7 @@ class InstanceLevel(BaseInstance):
     def __init__(self) -> None:
         super().__init__(Resource.data["instances"]["game"]["fps"])
 
-        self.level = Level("level_6", self)
+        self.level = Level("level_0", self)
         self.triggers: list[Trigger] = []
         self.create_triggers()
         self.scene: ComposedScene = self.level.scene
@@ -137,8 +137,6 @@ class InstanceLevel(BaseInstance):
 
         if tutorial_name not in InstanceTutorial.TUTORIALS_DONE:
             await InstanceTutorial(tutorial_name).execute()
-
-
 
     def put_player_on_top(self) -> None:
         if self.transition is None:

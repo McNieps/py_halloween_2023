@@ -1,7 +1,7 @@
 world:
   color: 6
 
-  _background_cave_walls:
+  _background_cave:
     tileset: {name: terrain_tileset, tile_size: 16}
     depth: 1
 
@@ -23,7 +23,7 @@ world:
 entities:
   - {type: player, position: [90, 1385]}
   - {type: arrow, position: [1751, 581]}
+  - {type: ghost, position: [-20, 1375]}
 
 triggers:
   - {zone: [2472, 530, 100, 200], type: level_change, level_name: level_4}
-#  - {zone: [350, 500, 100, 500], type: tutorial, tutorial_name: shotgun}

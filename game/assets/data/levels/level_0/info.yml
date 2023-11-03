@@ -22,6 +22,7 @@ entities:
   - {type: arrow, position: [1525, 555], angle: 0}
   - {type: arrow, position: [658, 639], angle: 90}
   - {type: arrow, position: [657, 539], angle: 0}
+  - {type: ghost, position: [100, 650]}
 
 
 triggers:

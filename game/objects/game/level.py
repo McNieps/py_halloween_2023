@@ -11,6 +11,7 @@ from game.objects.game.player import Player
 from game.objects.game.arrow import Arrow
 from game.objects.game.spike import Spike
 from game.objects.game.pellet import Pellet
+from game.objects.game.ghost import Ghost
 from game.objects.game.shape_info import TerrainSI
 
 
@@ -137,12 +138,20 @@ class Level:
                                             self._scene,
                                             self.instance))
 
+            elif entity_type == "ghost":
+                entity_position = entity_dict["position"]
+                self.scene.add_entities(Ghost(entity_position,
+                                        self.player,
+                                        self._scene,
+                                        self.instance))
+
             else:
                 raise ValueError(f"Unknown entity {entity_type} in level {self.level_name}.")
 
     def _create_collision_handlers(self) -> None:
         self.player.create_collision_handler(self._scene.space)
         Spike.create_collision_handler(self._scene.space)
+        Ghost.create_collision_handler(self._scene.space)
         Pellet.create_body_arbiters(self._scene)
 
     def _add_terrain_collision_entities(self) -> None:

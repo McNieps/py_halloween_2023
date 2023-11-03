@@ -20,6 +20,7 @@ world:
 entities:
   - {type: player, position: [100, 650]}
   - {type: spike_range, start_position: [960, 713], end_position: [1316, 713]}
+  - {type: ghost, position: [24, 642]}
 
 triggers:
   - {zone: [1530, 0, 70, 600], type: level_change, level_name: level_2}

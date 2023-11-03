@@ -19,6 +19,7 @@ entities:
   - {type: spike_range, start_position: [806, 1173], end_position: [736, 1173], spacing: 10}
   - {type: spike_range, start_position: [906, 1373], end_position: [906, 1240], spacing: 10}
   - {type: spike_range, start_position: [562, 1370], end_position: [907, 1370], spacing: 6}
+  - {type: ghost, position: [100, 650]}
 
 triggers:
  - {zone: [1480, 500, 100, 500], type: level_change, level_name: level_6}
