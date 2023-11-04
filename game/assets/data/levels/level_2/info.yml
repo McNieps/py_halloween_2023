@@ -26,4 +26,4 @@ entities:
   - {type: ghost, position: [-20, 1375]}
 
 triggers:
-  - {zone: [2472, 530, 100, 200], type: level_change, level_name: level_4}
+  - {zone: [2472, 530, 100, 200], type: level_change, level_name: level_3}
